@@ -26,13 +26,14 @@ import { FormSuccess } from "@/components/custom/form-success";
 import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { BASE_API_URL } from "@/config/constant";
 
 const SignIn = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isViewPassword, setIsViewPassword] = useState<boolean>(true);
-  const router = useRouter()
+  const router = useRouter();
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -48,10 +49,7 @@ const SignIn = () => {
     startTransition(async () => {
       try {
         console.log(error);
-        const response = await axios.post(
-          "http://localhost:8080/api/v1/auth/login",
-          values
-        );
+        const response = await axios.post(`${BASE_API_URL}/auth/login`, values);
         const jwtToken = response.data.token;
         setSuccess("Đăng nhập thành công!");
         localStorage.setItem("jwtToken", jwtToken);
@@ -59,7 +57,10 @@ const SignIn = () => {
         router.push("/authen/view-profile");
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
-          setError(error.response.data.message || "Có lỗi xảy ra trong quá trình đăng nhập.");
+          setError(
+            error.response.data.message ||
+              "Có lỗi xảy ra trong quá trình đăng nhập."
+          );
         } else {
           setError("Một lỗi không xác định đã xảy ra.");
         }

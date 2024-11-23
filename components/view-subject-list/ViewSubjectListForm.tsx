@@ -30,7 +30,13 @@ const ViewSubjectListForm: React.FC = () => {
       setLoading(true);
       const response = await axios.post(
         `${BASE_API_URL}/subject/search`,
-        { keyword: searchTerm, page: page - 1, size: 10, orderBy: 'id', sortDirection: 'asc' },
+        {
+          keyword: searchTerm,
+          page: page - 1,
+          size: 10,
+          orderBy: "id",
+          sortDirection: "asc",
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -39,7 +45,6 @@ const ViewSubjectListForm: React.FC = () => {
       const subjects = response?.data.data.dataSource;
 
       if (Array.isArray(subjects)) {
-
         setSubject(subjects);
         setTotalPages(response.data.data.pagination.totalPages || 1);
       } else {
@@ -104,9 +109,9 @@ const ViewSubjectListForm: React.FC = () => {
         prevData.map((subject) =>
           subject.subjectId === subjectId
             ? {
-              ...subject,
-              status: newStatus,
-            }
+                ...subject,
+                status: newStatus,
+              }
             : subject
         )
       );
@@ -129,7 +134,11 @@ const ViewSubjectListForm: React.FC = () => {
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`px-3 py-2 rounded ${currentPage === i ? "bg-[#6FBC44] text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+            className={`px-3 py-2 rounded ${
+              currentPage === i
+                ? "bg-[#6FBC44] text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
           >
             {i}
           </button>
@@ -138,12 +147,20 @@ const ViewSubjectListForm: React.FC = () => {
     } else {
       if (currentPage > 3) {
         buttons.push(
-          <button key={1} onClick={() => handlePageChange(1)} className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300">
+          <button
+            key={1}
+            onClick={() => handlePageChange(1)}
+            className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
+          >
             1
           </button>
         );
         if (currentPage > 4) {
-          buttons.push(<span key="left-ellipsis" className="px-2">...</span>);
+          buttons.push(
+            <span key="left-ellipsis" className="px-2">
+              ...
+            </span>
+          );
         }
       }
 
@@ -156,7 +173,11 @@ const ViewSubjectListForm: React.FC = () => {
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`px-3 py-2 rounded ${currentPage === i ? "bg-[#6FBC44] text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+            className={`px-3 py-2 rounded ${
+              currentPage === i
+                ? "bg-[#6FBC44] text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
           >
             {i}
           </button>
@@ -165,7 +186,11 @@ const ViewSubjectListForm: React.FC = () => {
 
       if (currentPage < totalPages - 2) {
         if (currentPage < totalPages - 3) {
-          buttons.push(<span key="right-ellipsis" className="px-2">...</span>);
+          buttons.push(
+            <span key="right-ellipsis" className="px-2">
+              ...
+            </span>
+          );
         }
         buttons.push(
           <button
@@ -194,31 +219,50 @@ const ViewSubjectListForm: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 fetchSettings(1);
               }
             }}
           />
-          <button onClick={() => fetchSettings(1)} className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]">
+          <button
+            onClick={() => fetchSettings(1)}
+            className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]"
+          >
             Search
           </button>
-          <button onClick={() => { router.push("/feature/add-subject"); }} className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]">
+          <button
+            onClick={() => {
+              router.push("/feature/add-subject");
+            }}
+            className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]"
+          >
             + Add More
           </button>
         </div>
       </div>
 
-
       <>
         <table className="w-full mt-10 table-auto border-collapse rounded py-5">
           <thead>
             <tr className="bg-[#6FBC44] text-white">
-              <th className="px-6 py-3 uppercase tracking-wider border-r-white">#</th>
-              <th className="px-6 py-3 text-left tracking-wider border-r-white">Subject Code</th>
-              <th className="px-6 py-3 text-left tracking-wider border-r-white">Subject Name</th>
-              <th className="px-6 py-3 text-center tracking-wider border-r-white">Last update</th>
-              <th className="px-6 py-3 text-center tracking-wider border-r-white">Status</th>
-              <th className="px-6 py-3 text-center tracking-wider border-r-white">Detail</th>
+              <th className="px-6 py-3 uppercase tracking-wider border-r-white">
+                #
+              </th>
+              <th className="px-6 py-3 text-left tracking-wider border-r-white">
+                Subject Code
+              </th>
+              <th className="px-6 py-3 text-left tracking-wider border-r-white">
+                Subject Name
+              </th>
+              <th className="px-6 py-3 text-center tracking-wider border-r-white">
+                Last update
+              </th>
+              <th className="px-6 py-3 text-center tracking-wider border-r-white">
+                Status
+              </th>
+              <th className="px-6 py-3 text-center tracking-wider border-r-white">
+                Detail
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -227,20 +271,36 @@ const ViewSubjectListForm: React.FC = () => {
                 key={subject.subjectId}
                 className={!subject.status ? "bg-green-300" : ""}
               >
-                <td className="border px-6 py-3 text-center">{subject.subjectId}</td>
-                <td className="border px-6 py-3 text-left">{subject.subjectCode}</td>
-                <td className="border px-6 py-3 text-left">{subject.subjectName}</td>
-                <td className="border px-6 py-3 text-center">{moment(subject.updatedAt).format("DD/MM/YYYY")}</td>
+                <td className="border px-6 py-3 text-center">
+                  {subject.subjectId}
+                </td>
+                <td className="border px-6 py-3 text-left">
+                  {subject.subjectCode}
+                </td>
+                <td className="border px-6 py-3 text-left">
+                  {subject.subjectName}
+                </td>
+                <td className="border px-6 py-3 text-center">
+                  {moment(subject.updatedAt).format("DD/MM/YYYY")}
+                </td>
                 <td className="border px-6 py-3 text-center">
                   <div className="flex items-center justify-center">
                     <div
                       onClick={() => handleToggleStatus(subject.subjectId)}
-                      className={`flex h-6 w-12 cursor-pointer rounded-full border border-black ${subject.status ? "justify-end bg-green-500" : "justify-start bg-black"} px-[1px]`}
+                      className={`flex h-6 w-12 cursor-pointer rounded-full border border-black ${
+                        subject.status
+                          ? "justify-end bg-green-500"
+                          : "justify-start bg-black"
+                      } px-[1px]`}
                     >
                       <motion.div
                         className="h-5 w-5 rounded-full bg-white"
                         layout
-                        transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 700,
+                          damping: 30,
+                        }}
                       />
                     </div>
                   </div>
@@ -278,7 +338,6 @@ const ViewSubjectListForm: React.FC = () => {
           </button>
         </div>
       </>
-
     </div>
   );
 };

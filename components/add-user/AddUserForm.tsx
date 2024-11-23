@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Home, Users, BookOpen, Settings, LogOut } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { BASE_API_URL } from "@/config/constant";
 
 const ViewUserListForm: React.FC = () => {
   const options = [
@@ -16,13 +17,17 @@ const ViewUserListForm: React.FC = () => {
     { Label: "Trainee", Value: "ROLE_TRAINEE" },
   ];
 
-  const allowedRoles = options.map(option => option.Value);
+  const allowedRoles = options.map((option) => option.Value);
   const validationSchema = Yup.object({
     fullName: Yup.string().required("Full Name is required"),
-    email: Yup.string().email("Invalid email format").required("Email is required"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required"),
     account: Yup.string().required("Account is required"),
     password: Yup.string().required("Password is required"),
-    roles: Yup.string().oneOf(allowedRoles, "Role is required").required("Role is required"),
+    roles: Yup.string()
+      .oneOf(allowedRoles, "Role is required")
+      .required("Role is required"),
     phone: Yup.string().required("Phone number is required"),
   });
 
@@ -46,11 +51,12 @@ const ViewUserListForm: React.FC = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8080/api/v1/user/management/add", 
+      const response = await axios.post(
+        `${BASE_API_URL}/user/management/add`,
         {
           ...values,
           roles: [values.roles],
-        }, 
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,8 +74,6 @@ const ViewUserListForm: React.FC = () => {
 
   return (
     <div className="flex min-h-screen">
-      
-
       {/* Main Content */}
       <div className="flex-1 ml-[228px] bg-[#EFF5EB] p-18">
         <div className="flex justify-between items-center p-8 border-b">
@@ -91,7 +95,11 @@ const ViewUserListForm: React.FC = () => {
                     placeholder="Input your name"
                     className="w-full p-2 border border-gray-700 rounded"
                   />
-                  <ErrorMessage name="fullName" component="div" className="text-red-500" />
+                  <ErrorMessage
+                    name="fullName"
+                    component="div"
+                    className="text-red-500"
+                  />
                 </div>
 
                 <div className="mb-6">
@@ -103,7 +111,11 @@ const ViewUserListForm: React.FC = () => {
                     placeholder="Template@gmail.com"
                     className="w-full p-2 border border-gray-700 rounded"
                   />
-                  <ErrorMessage name="email" component="div" className="text-red-500" />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className="text-red-500"
+                  />
                 </div>
 
                 <div className="mb-6">
@@ -114,7 +126,11 @@ const ViewUserListForm: React.FC = () => {
                     placeholder="Input Account"
                     className="w-full p-2 border border-gray-700 rounded"
                   />
-                  <ErrorMessage name="account" component="div" className="text-red-500" />
+                  <ErrorMessage
+                    name="account"
+                    component="div"
+                    className="text-red-500"
+                  />
                 </div>
 
                 <div className="mb-6">
@@ -126,7 +142,11 @@ const ViewUserListForm: React.FC = () => {
                     placeholder="Input Password"
                     className="w-full p-2 border border-gray-700 rounded"
                   />
-                  <ErrorMessage name="password" component="div" className="text-red-500" />
+                  <ErrorMessage
+                    name="password"
+                    component="div"
+                    className="text-red-500"
+                  />
                 </div>
 
                 <div className="mb-6">
@@ -144,7 +164,11 @@ const ViewUserListForm: React.FC = () => {
                       </option>
                     ))}
                   </Field>
-                  <ErrorMessage name="role" component="div" className="text-red-500" />
+                  <ErrorMessage
+                    name="role"
+                    component="div"
+                    className="text-red-500"
+                  />
                 </div>
 
                 <div className="mb-6">
@@ -155,12 +179,14 @@ const ViewUserListForm: React.FC = () => {
                     placeholder="Input phone"
                     className="w-full p-2 border border-gray-700 rounded"
                   />
-                  <ErrorMessage name="phone" component="div" className="text-red-500" />
+                  <ErrorMessage
+                    name="phone"
+                    component="div"
+                    className="text-red-500"
+                  />
                 </div>
 
                 <div className="flex mt-2 flex-col">
-                  
-
                   <div>
                     <button
                       type="submit"
@@ -177,7 +203,6 @@ const ViewUserListForm: React.FC = () => {
                     </button>
                   </div>
                 </div>
-               
               </Form>
             )}
           </Formik>

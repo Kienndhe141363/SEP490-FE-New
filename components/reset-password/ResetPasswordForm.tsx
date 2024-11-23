@@ -25,6 +25,7 @@ import { FormSuccess } from "@/components/custom/form-success";
 import { Eye, EyeOff } from "lucide-react";
 import { ResetPasswordSchema } from "@/schema/reset-password-schema";
 import axios from "axios";
+import { BASE_API_URL } from "@/config/constant";
 
 const ResetPasswordForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -53,10 +54,13 @@ const ResetPasswordForm = () => {
 
     startTransition(async () => {
       try {
-        const response = await axios.post("http://localhost:8080/api/v1/auth/reset-password", {
-          ...values,
-          email, // Gửi email cùng mã OTP và mật khẩu mới
-        });
+        const response = await axios.post(
+          `${BASE_API_URL}/auth/reset-password`,
+          {
+            ...values,
+            email, // Gửi email cùng mã OTP và mật khẩu mới
+          }
+        );
         setSuccess("Password reset successfully!");
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
@@ -100,7 +104,9 @@ const ResetPasswordForm = () => {
                 name="verificationCode"
                 render={({ field }) => (
                   <FormItem className="lg:w-7/12 w-10/12">
-                    <FormLabel className="text-lg font-semibold">Code</FormLabel>
+                    <FormLabel className="text-lg font-semibold">
+                      Code
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -120,7 +126,9 @@ const ResetPasswordForm = () => {
                 name="newPassword"
                 render={({ field }) => (
                   <FormItem className="lg:w-7/12 w-10/12 mt-4">
-                    <FormLabel className="text-lg font-semibold">New Password</FormLabel>
+                    <FormLabel className="text-lg font-semibold">
+                      New Password
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -153,7 +161,9 @@ const ResetPasswordForm = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem className="lg:w-7/12 w-10/12 mt-4">
-                    <FormLabel className="text-lg font-semibold">Confirm New Password</FormLabel>
+                    <FormLabel className="text-lg font-semibold">
+                      Confirm New Password
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input

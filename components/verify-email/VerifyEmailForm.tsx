@@ -23,6 +23,7 @@ import { FormSuccess } from "@/components/custom/form-success";
 import axios from "axios";
 import router from "next/router";
 import { useRouter } from "next/navigation";
+import { BASE_API_URL } from "@/config/constant";
 
 const VerifyEmail = () => {
   const [isPending, startTransition] = useTransition();
@@ -36,7 +37,7 @@ const VerifyEmail = () => {
       email: "",
     },
   });
-  
+
   const handleSubmit = async (values: z.infer<typeof VerifyEmailSchema>) => {
     setError("");
     setSuccess("");
@@ -44,7 +45,7 @@ const VerifyEmail = () => {
     startTransition(async () => {
       try {
         const response = await axios.post(
-          "http://localhost:8080/api/v1/auth/verify",
+          `${BASE_API_URL}/auth/verify`,
           values
         );
         setSuccess("OTP sent successfully!");
@@ -86,7 +87,7 @@ const VerifyEmail = () => {
                     <FormLabel className="text-lg font-semibold">
                       Email
                     </FormLabel>
-                    
+
                     <div className="relative">
                       <FormControl>
                         <Input

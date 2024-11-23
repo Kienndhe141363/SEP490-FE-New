@@ -3,7 +3,6 @@ import Link from "next/link";
 import React, { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
 
-
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { ChangePasswordSchema } from "@/schema";
@@ -34,13 +33,14 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
+import { BASE_API_URL } from "@/config/constant";
 
 const ChangePasswordForm = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isViewPassword, setIsViewPassword] = useState<boolean>(true);
-  const router =  useRouter();
+  const router = useRouter();
   const form = useForm<z.infer<typeof ChangePasswordSchema>>({
     resolver: zodResolver(ChangePasswordSchema),
     defaultValues: {
@@ -58,7 +58,7 @@ const ChangePasswordForm = () => {
       try {
         const jwtToken = localStorage.getItem("jwtToken");
         const response = await axios.put(
-          "http://localhost:8080/api/v1/auth/change-password",
+          `${BASE_API_URL}/auth/change-password`,
           values,
           {
             headers: {
@@ -90,7 +90,7 @@ const ChangePasswordForm = () => {
 
     // Gọi API để lấy thông tin người dùng
     axios
-      .get("http://localhost:8080/api/v1/user/profile", {
+      .get(`${BASE_API_URL}/user/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -102,11 +102,9 @@ const ChangePasswordForm = () => {
       .catch(() => {
         router.push("/authen/login"); // Chuyển hướng nếu có lỗi
       })
-      .finally(() => {
-
-      });
+      .finally(() => {});
   }, [router]);
-  
+
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 ml-[228px] bg-[#EFF5EB] p-24">
@@ -134,8 +132,11 @@ const ChangePasswordForm = () => {
               <div className="border-b mb-8">
                 <div className="flex gap-8 mb-[-2px]">
                   <button
-                  onClick={() =>{router.push("/authen/view-profile")}}
-                   className="px-4 py-2 font-bold text-[#41464B] ">
+                    onClick={() => {
+                      router.push("/authen/view-profile");
+                    }}
+                    className="px-4 py-2 font-bold text-[#41464B] "
+                  >
                     User Profile
                   </button>
                   <button className="px-4 py-2 font-bold text-[#41464B] border-b-4 border-[#6FBC44]">
@@ -144,146 +145,131 @@ const ChangePasswordForm = () => {
                 </div>
               </div>
 
-              
-                
-                  
-                  
-                    <div className="form w-full flex flex-col items-center justify-center">
-                      
-                      <Form {...form}>
-                        <form
-                          onSubmit={form.handleSubmit(handleSubmit)}
-                          className="w-full flex flex-col items-center mt-8"
-                        >
-                          <FormField
-                            control={form.control}
-                            name="oldPassword"
-                            render={({ field }) => (
-                              <FormItem className="w-full mt-4">
-                                <FormLabel className="text-lg font-semibold">
-                                  Old Password
-                                </FormLabel>
-                                <FormControl>
-                                  <div className="relative">
-                                    <Input
-                                      {...field}
-                                      disabled={isPending}
-                                      placeholder="Enter your password"
-                                      type={
-                                        isViewPassword ? "password" : "text"
-                                      }
-                                      className="h-14 border-gray-700 w-full "
-                                    />
-                                    {isViewPassword ? (
-                                      <EyeOff
-                                        onClick={() => setIsViewPassword(false)}
-                                        className="text-crusta absolute right-2 top-4 z-50 w-5"
-                                      />
-                                    ) : (
-                                      <Eye
-                                        onClick={() => setIsViewPassword(true)}
-                                        className="text-crusta absolute right-2 top-4 z-50 w-5"
-                                      />
-                                    )}
-                                  </div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+              <div className="form w-full flex flex-col items-center justify-center">
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(handleSubmit)}
+                    className="w-full flex flex-col items-center mt-8"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="oldPassword"
+                      render={({ field }) => (
+                        <FormItem className="w-full mt-4">
+                          <FormLabel className="text-lg font-semibold">
+                            Old Password
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                disabled={isPending}
+                                placeholder="Enter your password"
+                                type={isViewPassword ? "password" : "text"}
+                                className="h-14 border-gray-700 w-full "
+                              />
+                              {isViewPassword ? (
+                                <EyeOff
+                                  onClick={() => setIsViewPassword(false)}
+                                  className="text-crusta absolute right-2 top-4 z-50 w-5"
+                                />
+                              ) : (
+                                <Eye
+                                  onClick={() => setIsViewPassword(true)}
+                                  className="text-crusta absolute right-2 top-4 z-50 w-5"
+                                />
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                          <FormField
-                            control={form.control}
-                            name="newPassword"
-                            render={({ field }) => (
-                              <FormItem className=" w-full mt-4">
-                                <FormLabel className="text-lg font-semibold">
-                                  New Password
-                                </FormLabel>
-                                <FormControl>
-                                  <div className="relative">
-                                    <Input
-                                      {...field}
-                                      disabled={isPending}
-                                      placeholder="Enter your password"
-                                      type={
-                                        isViewPassword ? "password" : "text"
-                                      }
-                                      className="h-14 border-gray-700 w-full "
-                                    />
-                                    {isViewPassword ? (
-                                      <EyeOff
-                                        onClick={() => setIsViewPassword(false)}
-                                        className="text-crusta absolute right-2 top-4 z-50 w-5"
-                                      />
-                                    ) : (
-                                      <Eye
-                                        onClick={() => setIsViewPassword(true)}
-                                        className="text-crusta absolute right-2 top-4 z-50 w-5"
-                                      />
-                                    )}
-                                  </div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                    <FormField
+                      control={form.control}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <FormItem className=" w-full mt-4">
+                          <FormLabel className="text-lg font-semibold">
+                            New Password
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                disabled={isPending}
+                                placeholder="Enter your password"
+                                type={isViewPassword ? "password" : "text"}
+                                className="h-14 border-gray-700 w-full "
+                              />
+                              {isViewPassword ? (
+                                <EyeOff
+                                  onClick={() => setIsViewPassword(false)}
+                                  className="text-crusta absolute right-2 top-4 z-50 w-5"
+                                />
+                              ) : (
+                                <Eye
+                                  onClick={() => setIsViewPassword(true)}
+                                  className="text-crusta absolute right-2 top-4 z-50 w-5"
+                                />
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                          <FormField
-                            control={form.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                              <FormItem className=" w-full mt-4">
-                                <FormLabel className="text-lg font-semibold">
-                                  Confirm New Password
-                                </FormLabel>
-                                <FormControl>
-                                  <div className="relative">
-                                    <Input
-                                      {...field}
-                                      disabled={isPending}
-                                      placeholder="Confirm your password"
-                                      type={
-                                        isViewPassword ? "password" : "text"
-                                      }
-                                      className="h-14 border-gray-700 w-full "
-                                    />
-                                    {isViewPassword ? (
-                                      <EyeOff
-                                        onClick={() => setIsViewPassword(false)}
-                                        className="text-crusta absolute right-2 top-4 z-50 w-5"
-                                      />
-                                    ) : (
-                                      <Eye
-                                        onClick={() => setIsViewPassword(true)}
-                                        className="text-crusta absolute right-2 top-4 z-50 w-5"
-                                      />
-                                    )}
-                                  </div>
-                                </FormControl>
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem className=" w-full mt-4">
+                          <FormLabel className="text-lg font-semibold">
+                            Confirm New Password
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                disabled={isPending}
+                                placeholder="Confirm your password"
+                                type={isViewPassword ? "password" : "text"}
+                                className="h-14 border-gray-700 w-full "
+                              />
+                              {isViewPassword ? (
+                                <EyeOff
+                                  onClick={() => setIsViewPassword(false)}
+                                  className="text-crusta absolute right-2 top-4 z-50 w-5"
+                                />
+                              ) : (
+                                <Eye
+                                  onClick={() => setIsViewPassword(true)}
+                                  className="text-crusta absolute right-2 top-4 z-50 w-5"
+                                />
+                              )}
+                            </div>
+                          </FormControl>
 
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormError message={error} />
-                          <FormSuccess message={success} />
-                          <div className="flex lg:w-7/12 w-10/12 h-14 items-center justify-center">
-                            
-                            <Button
-                              type="submit"
-                              disabled={isPending}
-                              className="mt-10  bg-lightgreen font-bold shadow-gray-500 shadow-md hover:shadow-lg hover:shadow-gray-500 hover:bg-lightgreen p-7 py-6 "
-                            >
-                              Change
-                            </Button>
-                          </div>
-                        </form>
-                      </Form>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormError message={error} />
+                    <FormSuccess message={success} />
+                    <div className="flex lg:w-7/12 w-10/12 h-14 items-center justify-center">
+                      <Button
+                        type="submit"
+                        disabled={isPending}
+                        className="mt-10  bg-lightgreen font-bold shadow-gray-500 shadow-md hover:shadow-lg hover:shadow-gray-500 hover:bg-lightgreen p-7 py-6 "
+                      >
+                        Change
+                      </Button>
                     </div>
-                  
-                
-              
+                  </form>
+                </Form>
+              </div>
             </div>
           </div>
         </div>

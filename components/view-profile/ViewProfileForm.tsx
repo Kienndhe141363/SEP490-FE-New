@@ -6,9 +6,12 @@ import { Home, BookOpen, Settings, Users, LogOut } from "lucide-react";
 import axios from "axios";
 import { Console } from "console";
 import { useRouter } from "next/navigation";
+import { BASE_API_URL } from "@/config/constant";
 
 const ViewProfileForm = () => {
-  const [avatarUrl, setAvatarUrl] = useState("/assets/images/default-avatar.png");
+  const [avatarUrl, setAvatarUrl] = useState(
+    "/assets/images/default-avatar.png"
+  );
   const [profileData, setProfileData] = useState<any>({
     fullName: "",
     email: "",
@@ -46,7 +49,7 @@ const ViewProfileForm = () => {
 
     // Gọi API để lấy thông tin người dùng
     axios
-      .get("http://localhost:8080/api/v1/user/profile", {
+      .get(`${BASE_API_URL}/user/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,9 +61,7 @@ const ViewProfileForm = () => {
       .catch(() => {
         router.push("/authen/login"); // Chuyển hướng nếu có lỗi
       })
-      .finally(() => {
-
-      });
+      .finally(() => {});
   }, [router]);
 
   return (
@@ -71,9 +72,18 @@ const ViewProfileForm = () => {
           <div className="w-[296px] flex flex-col items-center">
             <div className="relative mb-6">
               <div className="w-[130px] h-[130px] rounded-full bg-[#E5E5E5] overflow-hidden">
-                <Image src={avatarUrl} alt="User avatar" width={130} height={130} className="rounded-full object-cover" />
+                <Image
+                  src={avatarUrl}
+                  alt="User avatar"
+                  width={130}
+                  height={130}
+                  className="rounded-full object-cover"
+                />
               </div>
-              <button onClick={handleAvatarClick} className="absolute bottom-0 right-0 w-[25px] h-[25px] bg-[#FFBA34] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#e5a82f] transition-colors">
+              <button
+                onClick={handleAvatarClick}
+                className="absolute bottom-0 right-0 w-[25px] h-[25px] bg-[#FFBA34] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#e5a82f] transition-colors"
+              >
                 <span className="text-white text-xs">📷</span>
               </button>
               <input
@@ -96,10 +106,12 @@ const ViewProfileForm = () => {
                   User Profile
                 </button>
                 <button
-                  onClick={() => { router.push("/authen/change-password") }}
-                  className="px-4 py-2 font-bold text-[#41464B]">
+                  onClick={() => {
+                    router.push("/authen/change-password");
+                  }}
+                  className="px-4 py-2 font-bold text-[#41464B]"
+                >
                   Change Password
-
                 </button>
               </div>
             </div>
