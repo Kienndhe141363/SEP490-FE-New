@@ -218,56 +218,90 @@ const ViewClassListForm: React.FC = () => {
         </div>
       </div>
 
-      <table className="w-full mt-10 table-auto border-collapse rounded py-5">
-        <thead>
-          <tr className="bg-[#6FBC44] text-white">
-            <th className="px-6 py-3 uppercase tracking-wider border-r-white">#</th>
-            <th className="px-6 py-3 text-left tracking-wider border-r-white">Class Code</th>
-            <th className="px-6 py-3 text-left tracking-wider border-r-white">Description</th>
-            <th className="px-6 py-3 text-left tracking-wider border-r-white">Class Admin</th>
-            <th className="px-6 py-3 text-center tracking-wider border-r-white">Start Date</th>
-            <th className="px-6 py-3 text-center tracking-wider border-r-white">End Date</th>
-            <th className="px-6 py-3 text-center tracking-wider border-r-white">Status</th>
-            <th className="px-6 py-3 text-center tracking-wider border-r-white">Detail</th>
-          </tr>
-        </thead>
-        <tbody>
-          {classes.map((classItem) => (
-            <tr
-              key={classItem.classId}
-              className={!classItem.status ? "bg-green-300" : ""}
+      <table className="w-full mt-6 table-auto border-collapse rounded overflow-hidden">
+  <thead>
+    <tr className="bg-[#6FBC44] text-white text-sm">
+      <th className="px-4 py-3 border text-center">#</th>
+      <th className="px-4 py-3 border text-left">Class Code</th>
+      <th className="px-4 py-3 border text-left">Class Admin</th>
+      <th className="px-4 py-3 border text-center">Number Trainee</th>
+      <th className="px-4 py-3 border text-center">Start Date</th>
+      <th className="px-4 py-3 border text-center">End Date</th>
+      <th className="px-4 py-3 border text-center">Status</th>
+      <th className="px-4 py-3 border text-center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {classes.map((classItem) => (
+      <tr key={classItem.classId} className={!classItem.status ? "bg-green-300" : ""}>
+        
+        <td className="border px-6 py-3 text-center">{classItem.classId}</td>
+
+        {/* Class Code */}
+        <td className="px-6 py-3 border text-left text-blue-500 hover:underline cursor-pointer">
+          <Link href="#">
+            {classItem.classCode}
+          </Link>
+        </td>
+
+        {/* Class Admin */}
+        <td className="px-6 py-3 border text-left">{classItem.admin}</td>
+
+        {/* Number Trainee */}
+        <td className="px-6 py-3 border text-center">{classItem.traineeCount || "0/0"}</td>
+
+        {/* Start Date */}
+        <td className="px-6 py-3 border text-center">
+          {moment(classItem.startDate).format("DD/MM/YYYY")}
+        </td>
+
+        {/* End Date */}
+        <td className="px-6 py-3 border text-center">
+          {moment(classItem.endDate).format("DD/MM/YYYY")}
+        </td>
+
+        {/* Status */}
+        <td className="px-6 py-3 border text-center">
+          <div
+            onClick={() => handleToggleStatus(classItem.classId)}
+            className={`inline-flex items-center h-6 w-12 cursor-pointer rounded-full ${
+              classItem.status ? "justify-end bg-green-500" : "justify-start bg-black"
+            } px-[1px]`}
+          >
+            <motion.div
+              className="h-5 w-5 rounded-full bg-white"
+              layout
+              transition={{ type: "spring", stiffness: 700, damping: 30 }}
+            />
+          </div>
+        </td>
+
+        {/* Action */}
+        <td className="px-6 py-3 border text-center">
+          <div className="flex justify-center space-x-2">
+            {/* Nút Tích */}
+            <button
+              onClick={() => toast.success("Approve action triggered")}
+              className="bg-green-500 text-white px-2  rounded-full hover:bg-green-700"
             >
-              <td className="border px-6 py-3 text-center">{classItem.classId}</td>
-              <td className="border px-6 py-3 text-left">{classItem.classCode}</td>
-              <td className="border px-6 py-3 text-left">{classItem.descriptions}</td>
-              <td className="border px-6 py-3 text-left">{classItem.admin}</td>
-              <td className="border px-6 py-3 text-center">{moment(classItem.startDate).format("DD/MM/YYYY")}</td>
-              <td className="border px-6 py-3 text-center">{moment(classItem.endDate).format("DD/MM/YYYY")}</td>
-              <td className="border px-6 py-3 text-center">
-                <div className="flex items-center justify-center">
-                  <div
-                    onClick={() => handleToggleStatus(classItem.classId)}
-                    className={`flex h-6 w-12 cursor-pointer rounded-full border border-black ${classItem.status ? "justify-end bg-green-500" : "justify-start bg-black"} px-[1px]`}
-                  >
-                    <motion.div
-                      className="h-5 w-5 rounded-full bg-white"
-                      layout
-                      transition={{ type: "spring", stiffness: 700, damping: 30 }}
-                    />
-                  </div>
-                </div>
-              </td>
-              <td className="border px-6 py-3 justify-center-center">
-                <div className="flex justify-center">
-                  <Link href={`/feature/view-class-list/${classItem.classId}`}>
-                    <FiEdit className="w-6 h-6 text-green-600 hover:text-green-800" />
-                  </Link>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              ✔
+            </button>
+
+            {/* Nút Xóa */}
+            <button
+              onClick={() => toast.error("Delete action triggered")}
+              className="bg-red-500 text-white px-2 rounded-full hover:bg-red-700"
+            >
+              ✖
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+
 
       {/* Pagination Controls */}
       <div className="pagination mt-4 flex align-middle w-full justify-center space-x-2">
