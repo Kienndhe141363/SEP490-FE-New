@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Home,
   Users,
@@ -10,6 +10,8 @@ import {
   ChevronDown,
   Plus,
 } from "lucide-react";
+import { formatDate } from "date-fns";
+import { BASE_API_URL } from "@/config/constant";
 
 interface Lesson {
   id: number;
@@ -31,46 +33,175 @@ interface AddNewClass4FormProps {
   data: any;
 }
 
+interface LessonFormProps {
+  setSubjects: any;
+  subjects: any;
+  subjectId: number;
+}
+
+const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    order: 0,
+    date: "",
+    description: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleAddLesson = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/session-management/add-session`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subjectId,
+            lesson: formData.name,
+            sessionOrder: formData.order,
+            // date: formData.date,
+            description: formData.description,
+          }),
+        }
+      );
+      const res = await response.json();
+      console.log("res", res.data);
+      if (res.code === "Success") {
+        const newSubjects = subjects.map((subject: any) =>
+          subject.subjectId === subjectId
+            ? {
+                ...subject,
+                sessionsList: [...subject.sessionsList, res.data],
+              }
+            : subject
+        );
+        console.log("newSubjects", newSubjects);
+        setSubjects(newSubjects);
+        setFormData({
+          name: "",
+          order: 0,
+          date: "",
+          description: "",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="p-4 border-t">
+      <div className="flex gap-4 items-center">
+        <Plus size={20} className="cursor-pointer" onClick={handleAddLesson} />
+        <input
+          type="text"
+          name="name"
+          placeholder="Lesson Name:"
+          className="bg-gray-100 p-2 rounded"
+          value={formData.name}
+          onChange={handleChange}
+        />
+        <input
+          type="number"
+          name="order"
+          placeholder="Order"
+          className="bg-gray-100 p-2 rounded w-24"
+          value={formData.order}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="description"
+          placeholder="Description:"
+          className="bg-gray-100 p-2 rounded flex-1"
+          value={formData.description}
+          onChange={handleChange}
+        />
+      </div>
+    </div>
+  );
+};
+
 const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
   const handleCancel = () => {
     setActiveStep(2);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    console.log("e", e);
-  };
-
   const activeTab = "Session";
 
-  const [subjects, setSubjects] = useState<Subject[]>([
-    {
-      id: 1,
-      name: "Subject 1",
-      isExpanded: true,
-      lessons: [
-        { id: 1, name: "Lesson 1", order: 1, date: "21/12/2024" },
-        { id: 2, name: "Lesson 1", order: 2, date: "21/12/2024" },
-        { id: 3, name: "Lesson 1", order: 3, date: "21/12/2024" },
-        { id: 4, name: "Lesson 1", order: 4, date: "21/12/2024" },
-      ],
-    },
-    {
-      id: 2,
-      name: "Subject 2",
-      isExpanded: false,
-      lessons: [],
-    },
-  ]);
+  const [subjects, setSubjects] = useState<any>([]);
 
   const toggleSubject = (subjectId: number) => {
     setSubjects(
-      subjects.map((subject) =>
-        subject.id === subjectId
+      subjects.map((subject: any) =>
+        subject.subjectId === subjectId
           ? { ...subject, isExpanded: !subject.isExpanded }
           : subject
       )
     );
   };
+
+  const handleUpdateClass = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/class-management/update-class-by-admin/${data.classId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            classId: data.classId,
+            classCode: data.classCode,
+            locationId: data.locationId,
+            curriculumId: data?.curriculum?.curriculumId,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            subjectList: data?.subjectList?.map((subject: any) => ({
+              subjectId: subject.subjectId,
+              slot: subject.slot,
+              trainer: subject.trainer || "Trainer",
+            })),
+            subjectSessionList: subjects.map((subject: any) => ({
+              subjectId: subject.subjectId,
+              sessionList: subject.sessionsList.map((session: any) => ({
+                sessionId: session.sessionId,
+                lesson: session.lesson,
+                sessionOrder: session.sessionOrder,
+                description: session.description,
+                date: "2024-11-24T16:24:17.544Z",
+                startDate: "2024-11-24T16:24:17.544Z",
+                endDate: "2024-11-24T16:24:17.544Z",
+              })),
+            })),
+          }),
+        }
+      );
+      const res = await response.json();
+      console.log("res", res);
+      if (res.code === "Success") {
+        console.log("Update class successfully");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  console.log(data);
+  console.log(subjects);
+  useEffect(() => {
+    setSubjects(
+      data.subjectList.map((subject: any, index: number) => ({
+        ...subject,
+        isExpanded: index === 0,
+      }))
+    );
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -163,50 +294,39 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
               <div className="p-3">Description</div>
             </div>
 
-            {subjects.map((subject) => (
-              <div key={subject.id} className="border rounded-lg mb-4">
+            {subjects.map((subject: any) => (
+              <div key={subject.subjectId} className="border rounded-lg mb-4">
                 <div
                   className="flex justify-between items-center p-4 cursor-pointer"
-                  onClick={() => toggleSubject(subject.id)}
+                  onClick={() => toggleSubject(subject.subjectId)}
                 >
-                  <h3 className="font-bold">{subject.name}</h3>
-                  {subject.isExpanded ? <ChevronUp /> : <ChevronDown />}
+                  <h3 className="font-bold">{subject.subjectName}</h3>
+                  {subject?.isExpanded ? <ChevronUp /> : <ChevronDown />}
                 </div>
 
-                {subject.isExpanded && (
+                {subject?.isExpanded && (
                   <>
-                    {subject.lessons.map((lesson) => (
-                      <div
-                        key={lesson.id}
-                        className="grid grid-cols-5 border-t"
-                      >
-                        <div className="p-4 border-r">{lesson.id}</div>
-                        <div className="p-4 border-r">{lesson.name}</div>
-                        <div className="p-4 border-r">{lesson.order}</div>
-                        <div className="p-4 border-r">{lesson.date}</div>
+                    {subject?.sessionsList.map((lesson: any, index: number) => (
+                      <div key={index} className="grid grid-cols-5 border-t">
+                        <div className="p-4 border-r">{index + 1}</div>
+                        <div className="p-4 border-r">{lesson.lesson}</div>
+                        <div className="p-4 border-r">
+                          {lesson.sessionOrder}
+                        </div>
+                        <div className="p-4 border-r">
+                          {formatDate(
+                            new Date(subject.createdDate),
+                            "dd/MM/yyyy"
+                          )}
+                        </div>
                         <div className="p-4">{lesson.description}</div>
                       </div>
                     ))}
-                    <div className="p-4 border-t">
-                      <div className="flex gap-4 items-center">
-                        <Plus size={20} />
-                        <input
-                          type="text"
-                          placeholder="Lesson Name:"
-                          className="bg-gray-100 p-2 rounded"
-                        />
-                        <input
-                          type="number"
-                          placeholder="Order"
-                          className="bg-gray-100 p-2 rounded w-24"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Description:"
-                          className="bg-gray-100 p-2 rounded flex-1"
-                        />
-                      </div>
-                    </div>
+                    <LessonForm
+                      setSubjects={setSubjects}
+                      subjects={subjects}
+                      subjectId={subject.subjectId}
+                    />
                   </>
                 )}
               </div>
@@ -222,7 +342,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
               </button>
               <button
                 className="bg-[#6FBC44] text-white px-6 py-2 rounded"
-                onClick={handleSubmit}
+                onClick={handleUpdateClass}
               >
                 Submit
               </button>

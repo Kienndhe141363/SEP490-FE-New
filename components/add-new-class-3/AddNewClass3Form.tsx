@@ -1,15 +1,15 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Home,
   Users,
   BookOpen,
   Settings,
   LogOut,
-  CheckCircle2,
   MinusCircle,
 } from "lucide-react";
-import Image from "next/image";
+import { BASE_API_URL } from "@/config/constant";
+import { getJwtToken } from "@/lib/utils";
 
 interface AddNewClass3FormProps {
   setActiveStep: (step: number) => void;
@@ -23,6 +23,27 @@ const AddNewClass3Form = ({
   setData,
 }: AddNewClass3FormProps) => {
   const activeTab = "Trainee";
+  console.log(data);
+  const [listTrainee, setListTrainee] = useState([]);
+
+  const fetchListTrainee = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/class-management/get-trainee-in-class/${data.classId}`,
+        {
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      setListTrainee(res?.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchListTrainee();
+  }, []);
 
   const handleCancel = () => {
     setActiveStep(1);
@@ -33,45 +54,54 @@ const AddNewClass3Form = ({
     setActiveStep(3);
   };
 
-  const [inClass, setInClass] = useState([
-    {
-      id: 1,
-      name: "DieuNTP",
-      email: "dieuntphe161355@fpt.edu.vn",
-      phone: "0336627895",
-    },
-    {
-      id: 2,
-      name: "NgaNQ",
-      email: "nganqhe1625342@fpt.edu.vn",
-      phone: "0337462847",
-    },
-    {
-      id: 3,
-      name: "DieuNTP",
-      email: "dieuntphe161355@fpt.edu.vn",
-      phone: "0336627895",
-    },
-    {
-      id: 4,
-      name: "NgaNQ",
-      email: "nganqhe1625342@fpt.edu.vn",
-      phone: "0337462847",
-    },
-    {
-      id: 5,
-      name: "DieuNTP",
-      email: "dieuntphe161355@fpt.edu.vn",
-      phone: "0336627895",
-    },
-  ]);
-
   const handleRemoveFromClass = (id: number) => {
-    const userToRemove = inClass.find((user) => user.id === id);
+    const userToRemove = listTrainee.find((user) => user.id === id);
   };
 
   console.log(data);
 
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await fetch(`${BASE_API_URL}/trainee/export-template`, {
+        headers: { Authorization: `Bearer ${getJwtToken()}` },
+      });
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "template-trainee.xlsx";
+      a.click();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleImportTrainee = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/trainee/import?classId=${data.classId}`,
+        {
+          method: "POST",
+          body: formData,
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      console.log(res);
+      fetchListTrainee();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  console.log(listTrainee);
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -151,12 +181,24 @@ const AddNewClass3Form = ({
             <div className="mb-6 flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Trainee in class</h2>
               <div className="flex gap-4">
-                <button className="px-4 py-2 text-blue-600 hover:underline">
+                <button
+                  className="px-4 py-2 text-blue-600 hover:underline"
+                  onClick={handleDownloadTemplate}
+                >
                   Download Template
                 </button>
-                <button className="px-6 py-2 bg-[#6FBC44] text-white rounded">
+                <input
+                  id="file"
+                  type="file"
+                  className="hidden"
+                  onChange={handleImportTrainee}
+                />
+                <label
+                  htmlFor="file"
+                  className="px-6 py-2 bg-[#6FBC44] text-white rounded cursor-pointer"
+                >
                   Import
-                </button>
+                </label>
               </div>
             </div>
 
@@ -181,16 +223,16 @@ const AddNewClass3Form = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {inClass.map((trainee, index) => (
+                  {listTrainee.map((trainee, index) => (
                     <tr
-                      key={trainee.id}
+                      key={trainee.userId}
                       className={index % 2 === 1 ? "bg-[#EFF5EB]" : ""}
                     >
                       <td className="py-4 px-6 border-r border-gray-300">
-                        {trainee.id}
+                        {index + 1}
                       </td>
                       <td className="py-4 px-6 border-r border-gray-300">
-                        {trainee.name}
+                        {trainee.account}
                       </td>
                       <td className="py-4 px-6 border-r border-gray-300">
                         {trainee.email}
@@ -222,6 +264,7 @@ const AddNewClass3Form = ({
               <button
                 className="px-8 py-2 bg-[#6FBC44] text-white rounded"
                 onClick={handleSubmit}
+                disabled={listTrainee.length === 0}
               >
                 Save
               </button>

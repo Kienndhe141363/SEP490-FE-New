@@ -179,6 +179,8 @@ const AddNewClassForm = ({ setActiveStep, setData }: AddNewClassFormProps) => {
         }
       );
 
+      console.log(res);
+
       // router.push("/feature/view-class-list"); // Adjust the route as needed
       setActiveStep(1);
       setData(res?.data?.data);

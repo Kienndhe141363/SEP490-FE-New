@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Home, Users, BookOpen, Settings, LogOut } from "lucide-react";
 import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
+import axios from "axios";
 
 interface AddNewClass2FormProps {
   setActiveStep: (step: number) => void;
@@ -19,9 +20,9 @@ const AddNewClass2Form = ({
 
   const [listLocation, setListLocation] = useState([]);
   const [listGeneration, setListGeneration] = useState([]);
-  const [listSlot, setListSlot] = useState([]);
   const [listTrainer, setListTrainer] = useState([]);
   const [listSubject, setListSubject] = useState([]);
+  const listSlot = [1, 2, 3, 4];
 
   const [formData, setFormData] = useState({
     classCode: "",
@@ -30,6 +31,7 @@ const AddNewClass2Form = ({
     startDate: "",
     endDate: "",
     note: "",
+    subjectList: [],
   });
 
   const handleCancel = () => {
@@ -37,7 +39,6 @@ const AddNewClass2Form = ({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("e", e);
     setData({ ...data, ...formData });
     setActiveStep(2);
   };
@@ -72,31 +73,20 @@ const AddNewClass2Form = ({
     }
   };
 
-  const fetchListSlot = async () => {
-    try {
-      const response = await fetch(
-        `${BASE_API_URL}/slot-management/get-trainer-for-class`,
-        {
-          headers: { Authorization: `Bearer ${getJwtToken()}` },
-        }
-      );
-      const { data } = await response.json();
-      setListSlot(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const fetchListTrainer = async () => {
     try {
-      const response = await fetch(
-        `${BASE_API_URL}/trainer-management/get-trainer-for-class`,
+      const response = await axios.post(
+        `${BASE_API_URL}/class-management/get-trainer-for-class`,
+        {
+          slot: 1,
+          startDate: "2021-11-24T12:16:46.929Z",
+          endDate: "2024-11-24T12:16:46.929Z",
+        },
         {
           headers: { Authorization: `Bearer ${getJwtToken()}` },
         }
       );
-      const res = await response.json();
-      setListTrainer(res?.data);
+      setListTrainer(response.data.data || []);
     } catch (error) {
       console.error(error);
     }
@@ -105,14 +95,32 @@ const AddNewClass2Form = ({
   const fetchListSubject = async () => {
     try {
       const response = await fetch(
-        `${BASE_API_URL}/subject-management/subject-options`,
-        // `${BASE_API_URL}/subject-management/get-subject-in-class/${data.classId}`,
+        `${BASE_API_URL}/subject/get-subject-in-class/${data.classId}`,
         {
           headers: { Authorization: `Bearer ${getJwtToken()}` },
         }
       );
       const res = await response.json();
       setListSubject(res?.data);
+      setFormData({
+        ...formData,
+        classCode: data.classCode || "",
+        locationId: data.locationId || "",
+        generationId: data.generationId || "",
+        startDate: data.startDate || "",
+        endDate: data.endDate || "",
+        note: data.note || "",
+        subjectList: data?.subjectList?.length
+          ? data?.subjectList
+          : res?.data?.map((subject: any) => ({
+              subjectId: subject.subjectId,
+              subjectName: subject.subjectName,
+              createdDate: subject.createdDate,
+              slot: 0,
+              trainer: "",
+              sessionsList: subject?.sessionsList,
+            })),
+      });
     } catch (error) {
       console.error(error);
     }
@@ -121,12 +129,43 @@ const AddNewClass2Form = ({
   useEffect(() => {
     fetchListLocation();
     fetchListGeneration();
-    fetchListSlot();
     fetchListTrainer();
     fetchListSubject();
-  }, []);
+
+    // if (data?.subjectList?.length) {
+    //   setFormData({
+    //     ...formData,
+    //     classCode: data.classCode,
+    //     locationId: data.locationId,
+    //     generationId: data.generationId,
+    //     startDate: data.startDate,
+    //     endDate: data.endDate,
+    //     note: data.note,
+    //     subjectList: data?.subjectList?.map((subject: any) => ({
+    //       subjectId: subject.subjectId,
+    //       slot: subject.slot,
+    //       trainer: subject.trainer,
+    //       sessionList: subject?.sessionList,
+    //     })),
+    //   });
+    // }
+  }, [data]);
 
   console.log(data);
+
+  const getSlot = (subjectId: number) => {
+    const subject = formData?.subjectList?.find(
+      (item: any) => item.subjectId === subjectId
+    );
+    return subject?.slot;
+  };
+
+  const getTrainer = (subjectId: number) => {
+    const subject = formData?.subjectList?.find(
+      (item: any) => item.subjectId === subjectId
+    );
+    return subject?.trainer;
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -186,7 +225,7 @@ const AddNewClass2Form = ({
       </aside>
 
       {/* Main Content */}
-      <form className="flex-1 p-8" onSubmit={handleSubmit}>
+      <form className="flex-1 p-8 h-screen overflow-y-auto">
         <h1 className="text-4xl font-bold">Add New Class</h1>
         <div className="mt-6">
           {/* Tabs */}
@@ -236,6 +275,7 @@ const AddNewClass2Form = ({
                   onChange={(e) =>
                     setFormData({ ...formData, classCode: e.target.value })
                   }
+                  value={formData?.classCode}
                 />
               </div>
               <div>
@@ -246,6 +286,7 @@ const AddNewClass2Form = ({
                   onChange={(e) =>
                     setFormData({ ...formData, locationId: e.target.value })
                   }
+                  value={formData?.locationId}
                 >
                   <option value="">Select location</option>
                   {listLocation.map((location) => (
@@ -266,6 +307,7 @@ const AddNewClass2Form = ({
                   onChange={(e) =>
                     setFormData({ ...formData, generationId: e.target.value })
                   }
+                  value={formData?.generationId}
                 >
                   <option value="">Select generation</option>
                   {listGeneration.map((generation) => (
@@ -295,6 +337,7 @@ const AddNewClass2Form = ({
                   onChange={(e) =>
                     setFormData({ ...formData, startDate: e.target.value })
                   }
+                  value={formData?.startDate}
                 />
               </div>
               <div>
@@ -305,6 +348,7 @@ const AddNewClass2Form = ({
                   onChange={(e) =>
                     setFormData({ ...formData, endDate: e.target.value })
                   }
+                  value={formData?.endDate}
                 />
               </div>
               <div>
@@ -338,19 +382,66 @@ const AddNewClass2Form = ({
                     </tr>
                   </thead>
                   <tbody>
-                    {["SQL", "C#"].map((subject) => (
-                      <tr key={subject}>
+                    {listSubject?.map((subject) => (
+                      <tr key={subject.subjectId}>
                         <td className="border border-gray-300 p-2">
-                          {subject}
+                          {subject.subjectName}
                         </td>
                         <td className="border border-gray-300 p-2">
-                          <select className="w-full border p-1">
+                          <select
+                            className="w-full border p-1"
+                            onChange={(e) => {
+                              const subjectList = formData?.subjectList?.map(
+                                (item: any) => {
+                                  if (item.subjectId === subject.subjectId) {
+                                    return {
+                                      ...item,
+                                      slot: e.target.value,
+                                    };
+                                  }
+                                  return item;
+                                }
+                              );
+                              setFormData({ ...formData, subjectList });
+                            }}
+                            value={getSlot(subject?.subjectId)}
+                          >
                             <option>Select Slot</option>
+                            {listSlot.map((slot) => (
+                              <option key={slot} value={slot}>
+                                {slot}
+                              </option>
+                            ))}
                           </select>
                         </td>
                         <td className="border border-gray-300 p-2">
-                          <select className="w-full border p-1">
+                          <select
+                            className="w-full border p-1"
+                            onChange={(e) => {
+                              const subjectList = formData?.subjectList?.map(
+                                (item: any) => {
+                                  if (item.subjectId === subject.subjectId) {
+                                    return {
+                                      ...item,
+                                      trainer: e.target.value,
+                                    };
+                                  }
+                                  return item;
+                                }
+                              );
+                              setFormData({ ...formData, subjectList });
+                            }}
+                            value={getTrainer(subject?.subjectId)}
+                          >
                             <option>Select Trainer</option>
+                            {listTrainer.map((trainer) => (
+                              <option
+                                key={trainer.trainerId}
+                                value={trainer.trainerId}
+                              >
+                                {trainer.trainerName}
+                              </option>
+                            ))}
                           </select>
                         </td>
                       </tr>
@@ -361,7 +452,14 @@ const AddNewClass2Form = ({
 
               <div className="col-span-2">
                 <label className="block font-bold">Note</label>
-                <textarea className="w-full border p-2" rows={3}></textarea>
+                <textarea
+                  className="w-full border p-2"
+                  rows={3}
+                  value={formData?.note}
+                  onChange={(e) =>
+                    setFormData({ ...formData, note: e.target.value })
+                  }
+                />
               </div>
             </div>
           </div>
@@ -376,8 +474,7 @@ const AddNewClass2Form = ({
             </button>
             <button
               className="bg-[#6FBC44] text-white px-4 py-2 rounded"
-              // onClick={handleSubmit}
-              type="submit"
+              onClick={handleSubmit}
             >
               Next
             </button>
