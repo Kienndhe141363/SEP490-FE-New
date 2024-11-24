@@ -1,6 +1,15 @@
 "use client";
 import React, { useState } from "react";
-import { Home, Users, BookOpen, Settings, LogOut, ChevronUp, ChevronDown, Plus } from "lucide-react";
+import {
+  Home,
+  Users,
+  BookOpen,
+  Settings,
+  LogOut,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+} from "lucide-react";
 
 interface Lesson {
   id: number;
@@ -17,8 +26,22 @@ interface Subject {
   isExpanded: boolean;
 }
 
-const AddNewClass4Form: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("Session");
+interface AddNewClass4FormProps {
+  setActiveStep: (step: number) => void;
+  data: any;
+}
+
+const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
+  const handleCancel = () => {
+    setActiveStep(2);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    console.log("e", e);
+  };
+
+  const activeTab = "Session";
+
   const [subjects, setSubjects] = useState<Subject[]>([
     {
       id: 1,
@@ -29,22 +52,24 @@ const AddNewClass4Form: React.FC = () => {
         { id: 2, name: "Lesson 1", order: 2, date: "21/12/2024" },
         { id: 3, name: "Lesson 1", order: 3, date: "21/12/2024" },
         { id: 4, name: "Lesson 1", order: 4, date: "21/12/2024" },
-      ]
+      ],
     },
     {
       id: 2,
       name: "Subject 2",
       isExpanded: false,
-      lessons: []
-    }
+      lessons: [],
+    },
   ]);
 
   const toggleSubject = (subjectId: number) => {
-    setSubjects(subjects.map(subject => 
-      subject.id === subjectId 
-        ? { ...subject, isExpanded: !subject.isExpanded }
-        : subject
-    ));
+    setSubjects(
+      subjects.map((subject) =>
+        subject.id === subjectId
+          ? { ...subject, isExpanded: !subject.isExpanded }
+          : subject
+      )
+    );
   };
 
   return (
@@ -68,16 +93,28 @@ const AddNewClass4Form: React.FC = () => {
         </div>
 
         <nav className="flex flex-col flex-1 text-white">
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da33a]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da33a]"
+          >
             <Home className="mr-3" /> Dashboard
           </a>
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da33a]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da33a]"
+          >
             <Users className="mr-3" /> User Management
           </a>
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da33a]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da33a]"
+          >
             <BookOpen className="mr-3" /> Curriculum Management
           </a>
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da33a]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da33a]"
+          >
             <BookOpen className="mr-3" /> Class Management
           </a>
         </nav>
@@ -108,7 +145,7 @@ const AddNewClass4Form: React.FC = () => {
                 className={`pb-2 ${
                   activeTab === tab ? "border-b-2 border-[#6FBC44]" : ""
                 }`}
-                onClick={() => setActiveTab(tab)}
+                disabled={activeTab !== tab}
               >
                 {tab}
               </button>
@@ -126,20 +163,23 @@ const AddNewClass4Form: React.FC = () => {
               <div className="p-3">Description</div>
             </div>
 
-            {subjects.map(subject => (
+            {subjects.map((subject) => (
               <div key={subject.id} className="border rounded-lg mb-4">
-                <div 
+                <div
                   className="flex justify-between items-center p-4 cursor-pointer"
                   onClick={() => toggleSubject(subject.id)}
                 >
                   <h3 className="font-bold">{subject.name}</h3>
                   {subject.isExpanded ? <ChevronUp /> : <ChevronDown />}
                 </div>
-                
+
                 {subject.isExpanded && (
                   <>
-                    {subject.lessons.map(lesson => (
-                      <div key={lesson.id} className="grid grid-cols-5 border-t">
+                    {subject.lessons.map((lesson) => (
+                      <div
+                        key={lesson.id}
+                        className="grid grid-cols-5 border-t"
+                      >
                         <div className="p-4 border-r">{lesson.id}</div>
                         <div className="p-4 border-r">{lesson.name}</div>
                         <div className="p-4 border-r">{lesson.order}</div>
@@ -174,8 +214,16 @@ const AddNewClass4Form: React.FC = () => {
 
             {/* Navigation Buttons */}
             <div className="flex justify-center mt-6 space-x-4">
-              <button className="bg-gray-200 px-6 py-2 rounded">Back</button>
-              <button className="bg-[#6FBC44] text-white px-6 py-2 rounded">
+              <button
+                className="bg-gray-200 px-6 py-2 rounded"
+                onClick={handleCancel}
+              >
+                Back
+              </button>
+              <button
+                className="bg-[#6FBC44] text-white px-6 py-2 rounded"
+                onClick={handleSubmit}
+              >
                 Submit
               </button>
             </div>

@@ -19,7 +19,7 @@ interface Curriculum {
 }
 
 interface ClassFormData {
-  classCode: string;
+  className: string;
   descriptions: string;
   admin: string;
   curriculumId: number;
@@ -27,7 +27,12 @@ interface ClassFormData {
   supplier: string;
 }
 
-const AddNewClassForm = () => {
+interface AddNewClassFormProps {
+  setActiveStep: (step: number) => void;
+  setData: (data: any) => void;
+}
+
+const AddNewClassForm = ({ setActiveStep, setData }: AddNewClassFormProps) => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,12 +40,12 @@ const AddNewClassForm = () => {
 
   // States for form data
   const [formData, setFormData] = useState<ClassFormData>({
-    classCode: '',
-    descriptions: '',
-    admin: '',
+    className: "",
+    descriptions: "",
+    admin: "",
     curriculumId: 0,
     planTraineeNo: 0,
-    supplier: ''
+    supplier: "",
   });
 
   // States for dropdown data
@@ -49,9 +54,9 @@ const AddNewClassForm = () => {
 
   // State for form validation
   const [errors, setErrors] = useState({
-    classCode: '',
-    admin: '',
-    curriculumId: ''
+    className: "",
+    admin: "",
+    curriculumId: "",
   });
 
   // Fetch admins and curriculums on component mount
@@ -74,7 +79,9 @@ const AddNewClassForm = () => {
           }
         );
         //@ts-ignore
-        const fetchedAdmin = adminsResponse?.data?.users.filter((user) => user.roles.includes('ROLE_CLASS_ADMIN'));
+        const fetchedAdmin = adminsResponse?.data?.users.filter((user) =>
+          user.roles.includes("ROLE_CLASS_ADMIN")
+        );
         setAdmins(fetchedAdmin);
         //setAdmins(adminsResponse.data.data.dataSource || []);
 
@@ -86,8 +93,8 @@ const AddNewClassForm = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-  
-        console.log(curriculumsResponse)
+
+        console.log(curriculumsResponse);
         // const curriculums = curriculumsResponse?.data.data.dataSource;
         setCurriculums(curriculumsResponse.data.data.dataSource || []);
       } catch (err) {
@@ -103,46 +110,48 @@ const AddNewClassForm = () => {
     fetchData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Clear error when user types
     if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {
-      classCode: '',
-      admin: '',
-      curriculumId: ''
+      className: "",
+      admin: "",
+      curriculumId: "",
     };
 
-    if (!formData.classCode) {
-      newErrors.classCode = 'Class code is required';
+    if (!formData.className) {
+      newErrors.className = "Class code is required";
     }
     if (!formData.admin) {
-      newErrors.admin = 'Admin is required';
+      newErrors.admin = "Admin is required";
     }
     if (!formData.curriculumId) {
-      newErrors.curriculumId = 'Curriculum is required';
+      newErrors.curriculumId = "Curriculum is required";
     }
 
     setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error !== '');
+    return !Object.values(newErrors).some((error) => error !== "");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -155,22 +164,24 @@ const AddNewClassForm = () => {
 
     try {
       setLoading(true);
-      await axios.post(
+      const res = await axios.post(
         `${BASE_API_URL}/class-management/add`,
         {
           ...formData,
           status: 1,
-          createdDate: new Date().toISOString()
+          createdDate: new Date().toISOString(),
         },
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-      
-      router.push("/feature/view-class-list"); // Adjust the route as needed
+
+      // router.push("/feature/view-class-list"); // Adjust the route as needed
+      setActiveStep(1);
+      setData(res?.data?.data);
     } catch (err) {
       setError("Error creating class.");
       if (axios.isAxiosError(err) && err.response?.status === 401) {
@@ -187,55 +198,70 @@ const AddNewClassForm = () => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      
-
       {/* Main Content */}
       <main className="flex-1 ml-[228px] bg-[#EFF5EB] p-18 min-h-screen">
-      <div className="flex justify-between items-center py-6">
-        <h2 className="text-6xl font-bold p-8">Add New Class</h2>
-      </div>
-        
+        <div className="flex justify-between items-center py-6">
+          <h2 className="text-6xl font-bold p-8">Add New Class</h2>
+        </div>
+
         {error && <FormError message={error} />}
 
         <div className="flex-2 mt-4">
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md w-8/12 mx-auto py-8 px-6">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-lg shadow-md w-8/12 mx-auto py-8 px-6"
+          >
             <div className="space-y-24">
               {/* Class Code, Admin */}
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xl font-bold mb-2">Class Code*</label>
+                  <label className="block text-xl font-bold mb-2">
+                    Class Name*
+                  </label>
                   <input
                     type="text"
-                    name="classCode"
-                    value={formData.classCode}
+                    name="className"
+                    value={formData.className}
                     onChange={handleInputChange}
-                    className={`w-full h-11 border ${errors.classCode ? 'border-red-500' : 'border-gray-300'} rounded px-3`}
+                    className={`w-full h-11 border ${
+                      errors.className ? "border-red-500" : "border-gray-300"
+                    } rounded px-3`}
                   />
-                  {errors.classCode && <p className="text-red-500 text-sm mt-1">{errors.classCode}</p>}
+                  {errors.className && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.className}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xl font-bold mb-2">Admin*</label>
-                  <select 
+                  <select
                     name="admin"
                     value={formData.admin}
                     onChange={handleInputChange}
-                    className={`w-full h-11 border ${errors.admin ? 'border-red-500' : 'border-gray-300'} rounded px-3 bg-white`}
+                    className={`w-full h-11 border ${
+                      errors.admin ? "border-red-500" : "border-gray-300"
+                    } rounded px-3 bg-white`}
                   >
                     <option value="">Select admin</option>
-                    {admins.map(admin => (
+                    {admins.map((admin) => (
                       <option key={admin.userId} value={admin.account}>
                         {admin.fullName} ({admin.account})
                       </option>
                     ))}
                   </select>
-                  {errors.admin && <p className="text-red-500 text-sm mt-1">{errors.admin}</p>}
+                  {errors.admin && (
+                    <p className="text-red-500 text-sm mt-1">{errors.admin}</p>
+                  )}
                 </div>
               </div>
 
               {/* Supplier, Curriculum */}
               <div className="grid grid-cols-2 gap-6 mt-5">
                 <div>
-                  <label className="block text-xl font-bold mb-2">Supplier</label>
+                  <label className="block text-xl font-bold mb-2">
+                    Supplier
+                  </label>
                   <input
                     type="text"
                     name="supplier"
@@ -245,32 +271,45 @@ const AddNewClassForm = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xl font-bold mb-2">Curriculum*</label>
-                  <select 
+                  <label className="block text-xl font-bold mb-2">
+                    Curriculum*
+                  </label>
+                  <select
                     name="curriculumId"
                     value={formData.curriculumId}
                     onChange={handleInputChange}
-                    className={`w-full h-11 border ${errors.curriculumId ? 'border-red-500' : 'border-gray-300'} rounded px-3 bg-white`}
+                    className={`w-full h-11 border ${
+                      errors.curriculumId ? "border-red-500" : "border-gray-300"
+                    } rounded px-3 bg-white`}
                   >
                     <option value="">Select curriculum</option>
-                    {curriculums.map(curriculum => (
-                      <option key={curriculum.curriculumId} value={curriculum.curriculumId}>
+                    {curriculums.map((curriculum) => (
+                      <option
+                        key={curriculum.curriculumId}
+                        value={curriculum.curriculumId}
+                      >
                         {curriculum.curriculumName}
                       </option>
                     ))}
                   </select>
-                  {errors.curriculumId && <p className="text-red-500 text-sm mt-1">{errors.curriculumId}</p>}
+                  {errors.curriculumId && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.curriculumId}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Plan Trainee No and Description */}
               <div className="grid grid-cols-2 gap-6 mt-5">
                 <div>
-                  <label className="block text-xl font-bold mb-2">Plan Trainee No</label>
+                  <label className="block text-xl font-bold mb-2">
+                    Plan Trainee No
+                  </label>
                   <input
                     type="number"
                     name="planTraineeNo"
-                    value={formData.planTraineeNo || ''}
+                    value={formData.planTraineeNo || ""}
                     onChange={handleInputChange}
                     className="h-11 w-full border border-gray-300 rounded px-3"
                   />
@@ -279,14 +318,14 @@ const AddNewClassForm = () => {
 
               {/* Buttons */}
               <div className="flex justify-center gap-4 mt-8">
-                <button 
+                <button
                   type="submit"
                   disabled={loading}
                   className="w-[157px] h-[43px] bg-[#6FBC44] text-white font-bold rounded hover:bg-[#5da639] disabled:opacity-50"
                 >
-                  {loading ? 'Adding...' : 'Add'}
+                  {loading ? "Adding..." : "Add"}
                 </button>
-                <button 
+                <button
                   type="button"
                   onClick={() => router.back()}
                   className="w-[157px] h-[43px] bg-[#D5DCD0] text-black font-bold rounded hover:bg-gray-200"
