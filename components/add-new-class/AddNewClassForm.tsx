@@ -201,7 +201,7 @@ const AddNewClassForm = ({ setActiveStep, setData }: AddNewClassFormProps) => {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Main Content */}
-      <main className="flex-1 ml-[228px] bg-[#EFF5EB] p-18 min-h-screen">
+      <main className="flex-1 ml-[228px] bg-[#EFF5EB] p-18 min-h-screen overflow-auto">
         <div className="flex justify-between items-center py-6">
           <h2 className="text-6xl font-bold p-8">Add New Class</h2>
         </div>

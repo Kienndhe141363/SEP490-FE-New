@@ -7,6 +7,7 @@ import ClassInfo from "./ClassInfo";
 import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
 import Trainee from "./Trainee";
+import Session from "./Session";
 
 const page: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Class Info");
@@ -46,7 +47,7 @@ const page: React.FC = () => {
       case "Grade":
         return <div>grade</div>;
       case "Session":
-        return <div>session</div>;
+        return <Session id={id} />;
       default:
         return null;
     }
