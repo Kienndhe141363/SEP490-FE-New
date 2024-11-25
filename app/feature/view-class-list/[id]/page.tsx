@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import ClassInfo from "./ClassInfo";
 import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
+import Trainee from "./Trainee";
 
 const page: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Class Info");
@@ -39,7 +40,7 @@ const page: React.FC = () => {
       case "Class Info":
         return <ClassInfo id={id} data={data} />;
       case "Trainee":
-        return <div>trainee</div>;
+        return <Trainee id={id} />;
       case "Attendance":
         return <div>attendance</div>;
       case "Grade":
