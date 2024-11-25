@@ -166,6 +166,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
             curriculumId: data?.curriculum?.curriculumId,
             startDate: new Date(data.startDate),
             endDate: new Date(data.endDate),
+            description: data.note,
             subjectList: data?.subjectList?.map((subject: any) => ({
               subjectId: subject.subjectId,
               slot: subject.slot,
