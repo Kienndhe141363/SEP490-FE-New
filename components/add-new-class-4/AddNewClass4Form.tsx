@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { formatDate } from "date-fns";
 import { BASE_API_URL } from "@/config/constant";
+import { useRouter } from "next/navigation";
 
 interface Lesson {
   id: number;
@@ -64,7 +65,7 @@ const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
             subjectId,
             lesson: formData.name,
             sessionOrder: formData.order,
-            // date: formData.date,
+            // date: "2024-11-24T16:24:17.544Z",
             description: formData.description,
           }),
         }
@@ -136,6 +137,8 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
 
   const [subjects, setSubjects] = useState<any>([]);
 
+  const router = useRouter();
+
   const toggleSubject = (subjectId: number) => {
     setSubjects(
       subjects.map((subject: any) =>
@@ -151,7 +154,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
       const response = await fetch(
         `${BASE_API_URL}/class-management/update-class-by-admin/${data.classId}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
@@ -159,13 +162,14 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
             classId: data.classId,
             classCode: data.classCode,
             locationId: data.locationId,
+            generationId: data.generationId,
             curriculumId: data?.curriculum?.curriculumId,
-            startDate: data.startDate,
-            endDate: data.endDate,
+            startDate: new Date(data.startDate),
+            endDate: new Date(data.endDate),
             subjectList: data?.subjectList?.map((subject: any) => ({
               subjectId: subject.subjectId,
               slot: subject.slot,
-              trainer: subject.trainer || "Trainer",
+              trainer: subject.trainer,
             })),
             subjectSessionList: subjects.map((subject: any) => ({
               subjectId: subject.subjectId,
@@ -185,7 +189,8 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
       const res = await response.json();
       console.log("res", res);
       if (res.code === "Success") {
-        console.log("Update class successfully");
+        router.push("/feature/view-class-list");
+        alert("Add class successfully");
       }
     } catch (error) {
       console.error(error);

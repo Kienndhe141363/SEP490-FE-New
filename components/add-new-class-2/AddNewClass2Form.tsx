@@ -436,10 +436,10 @@ const AddNewClass2Form = ({
                             <option>Select Trainer</option>
                             {listTrainer.map((trainer) => (
                               <option
-                                key={trainer.trainerId}
-                                value={trainer.trainerId}
+                                key={trainer.userId}
+                                value={trainer.account}
                               >
-                                {trainer.trainerName}
+                                {trainer.fullName}
                               </option>
                             ))}
                           </select>
