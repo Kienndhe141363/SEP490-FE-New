@@ -8,12 +8,14 @@ import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
 import Trainee from "./Trainee";
 import Session from "./Session";
+import useRole from "@/hooks/useRole";
 
 const page: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Class Info");
   const listTabs = ["Class Info", "Trainee", "Attendance", "Grade", "Session"];
 
   const { id } = useParams();
+  const role = useRole();
 
   const [data, setData] = useState<any>(null);
 
@@ -149,122 +151,6 @@ const page: React.FC = () => {
             ))}
           </div>
           <div className="bg-white rounded-lg p-8">{renderTabContent()}</div>
-
-          {/* Form Content */}
-          {/* <div className="bg-white rounded-lg p-8">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-              <div>
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Class Name:
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full h-10 border border-gray-300 rounded px-3"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Location:
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full h-10 border border-gray-300 rounded px-3"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Start Date
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full h-10 border border-gray-300 rounded px-3"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Supplier
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full h-10 border border-gray-300 rounded px-3"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Trainee No.
-                  </label>
-                  <input
-                    type="text"
-                    value="25"
-                    readOnly
-                    className="w-full h-10 border border-gray-300 rounded px-3 bg-gray-100"
-                  />
-                </div>
-              </div> */}
-
-          {/* Right Column */}
-          {/* <div>
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Class Admin*
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full h-10 border border-gray-300 rounded px-3"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Plan Trainee No.
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full h-10 border border-gray-300 rounded px-3"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    End Date
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full h-10 border border-gray-300 rounded px-3"
-                  />
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Curriculum
-                  </label>
-                  <select className="w-full h-10 border border-gray-300 rounded px-3">
-                    <option value="">Select curriculum</option>
-                  </select>
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-lg font-medium mb-2">
-                    Generation
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full h-10 border border-gray-300 rounded px-3"
-                  />
-                </div>
-              </div> */}
-
-          {/* Notes Section - Full Width */}
-          {/* <div className="col-span-2">
-                <label className="block text-lg font-medium mb-2">Note:</label>
-                <textarea className="w-full h-32 border border-gray-300 rounded p-3" />
-              </div>
-            </div> */}
 
           {/* Buttons */}
           {/* <div className="flex justify-center gap-4 mt-8">

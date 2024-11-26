@@ -9,6 +9,7 @@ import axios from "axios";
 import { BASE_API_URL } from "@/config/constant";
 import moment from "moment";
 import { toast } from "react-hot-toast";
+import useRole from "@/hooks/useRole";
 
 const ViewClassListForm: React.FC = () => {
   const [classes, setClasses] = useState([]);
@@ -199,8 +200,7 @@ const ViewClassListForm: React.FC = () => {
     return buttons;
   };
 
-  const role = localStorage.getItem("role");
-  console.log(role);
+  const role = useRole();
 
   return (
     <div className="flex-1 ml-[228px] bg-[#EFF5EB] p-24 min-h-screen">
@@ -255,7 +255,7 @@ const ViewClassListForm: React.FC = () => {
 
         {/* Class Code */}
         <td className="px-6 py-3 border text-left text-blue-500 hover:underline cursor-pointer"
-        onClick={() => role === 'ROLE_CLASS_ADMIN' && router.push(`/feature/view-class-list/${classItem.classId}`)}
+        onClick={() => router.push(`/feature/view-class-list/${classItem.classId}`)}
         >
             {classItem.classCode}d
         </td>
