@@ -8,14 +8,17 @@ import { useRouter } from "next/navigation";
 import { FiEdit } from "react-icons/fi";
 import Link from "next/link";
 import { BASE_API_URL } from "@/config/constant";
+import useUserStore from "@/store/UserStore";
+import toast from "react-hot-toast";
 
 interface User {
   userId: number;
-  account: string;
+  fullName: string;
   email: string;
   roles: string;
   phone: string;
   status: true | false;
+  account: string;
 }
 
 const ViewUserListForm: React.FC = () => {
@@ -26,6 +29,9 @@ const ViewUserListForm: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0); // Start with page 0
   const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
+  const [statusFilter, setStatusFilter] = useState<string>(""); // For Status filter
+  const [roleFilter, setRoleFilter] = useState<string>(""); // For Role filter
+  const currentUser = useUserStore(state => state.user);
 
   const fetchUsers = async (page = 0) => {
     const token = localStorage.getItem("jwtToken");
@@ -36,12 +42,15 @@ const ViewUserListForm: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`${BASE_API_URL}/user/management/list`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: { page, searchTerm },
-      });
+      const response = await axios.get(
+        `${BASE_API_URL}/user/management/list`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: { page, searchTerm },
+        }
+      );
 
       const userData = response?.data?.users;
       if (Array.isArray(userData)) {
@@ -64,51 +73,72 @@ const ViewUserListForm: React.FC = () => {
     }
   };
 
-  const searchUsers = async (page = 0) => {
+  const searchUsers = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
     const token = localStorage.getItem("jwtToken");
     if (!token) {
       router.push("/authen/login");
       return;
     }
-
+  
     try {
       setLoading(true);
+  
       const response = await axios.post(
         `${BASE_API_URL}/user/search`,
-        { keyword: searchTerm, page: page - 1, size: 10, orderBy: 'id', sortDirection: 'asc' },
+        {
+          keyword: `%${searchTerm}%`, // Từ khóa tìm kiếm
+          status: statusFilter ? statusFilter === "true" : undefined, // Trạng thái (true/false hoặc undefined)
+          roles: roleFilter || undefined, // Vai trò (hoặc undefined nếu không chọn)
+          pageable: {
+            page: currentPage,
+            size: 10, // Số lượng item mỗi trang
+            
+          },
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          params: { page }, // Gửi `page` trong params
         }
       );
-
-      const userData = response?.data?.users;
-      if (Array.isArray(userData)) {
-        setUsers(userData);
-        setTotalPages(response.data.totalPages || 1); // Set total pages từ response
-      } else {
-        console.log(response.data);
-        console.error("Data received is not an array:", userData);
+  
+      const userData = response?.data?.data?.dataSource;
+      console.log(response?.data?.data?.dataSource);
+      if (!Array.isArray(userData)) {
+        console.error("Unexpected data format:", response.data);
+        setError("Unexpected data format received from API");
         setUsers([]);
+        return;
       }
+  
+      setUsers(userData.sort((a, b) => a.userId - b.userId));
+      setTotalPages(Math.ceil((response.data.data.totalCount || 1) / 10)); // Tính tổng số trang
       setError(null);
     } catch (err) {
-      setError("Error fetching users");
-      console.error("Error fetching users:", err);
-      setUsers([]);
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
-        router.push("/authen/login");
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 404) {
+          setError("No results found for your search");
+        } else if (err.response?.status === 401) {
+          router.push("/authen/login");
+        } else {
+          setError("An error occurred while searching");
+        }
+      } else {
+        setError("Unexpected error occurred");
       }
+      console.error("Search error:", err);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
   };
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); // Ngăn chặn reload trang
-    searchUsers(); // Gọi hàm tìm kiếm
-  };
+  
+  
+  
+  
+  
 
   const handleToggleStatus = async (userId: number) => {
     const token = localStorage.getItem("jwtToken");
@@ -138,26 +168,26 @@ const ViewUserListForm: React.FC = () => {
           user.userId === userId ? { ...user, status: newStatus } : user
         )
       );
+
+      // Show success toast
+      toast.success(`Update user status successfully!`);
     } catch (err) {
       setError("Error updating user status");
       console.error("Error updating user status:", err);
       if (axios.isAxiosError(err) && err.response?.status === 401) {
         router.push("/authen/login");
       }
+
+      // Show error toast
+      toast.error("Failed to update user status");
     }
   };
 
   const handlePageChange = (page: number) => {
     if (page < 0 || page >= totalPages) return;
     setCurrentPage(page);
-  
-    if (searchTerm) {
-      searchUsers(page); // Tìm kiếm nếu có từ khóa
-    } else {
-      fetchUsers(page); // Lấy danh sách đầy đủ nếu không có từ khóa
-    }
+    fetchUsers(page);
   };
-  
 
   const renderPaginationButtons = () => {
     const pageButtons = [];
@@ -170,11 +200,7 @@ const ViewUserListForm: React.FC = () => {
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`px-3 py-2 rounded ${
-              currentPage === i
-                ? "bg-[#6FBC44] text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
+            className={`px-3 py-2 rounded ${currentPage === i ? "bg-[#6FBC44] text-white" : "bg-gray-200 hover:bg-gray-300"}`}
           >
             {i + 1}
           </button>
@@ -184,20 +210,12 @@ const ViewUserListForm: React.FC = () => {
       // If there are many pages, show a subset with ellipses
       if (currentPage > 2) {
         pageButtons.push(
-          <button
-            key={0}
-            onClick={() => handlePageChange(0)}
-            className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
-          >
+          <button key={0} onClick={() => handlePageChange(0)} className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300">
             1
           </button>
         );
         if (currentPage > 3) {
-          pageButtons.push(
-            <span key="left-ellipsis" className="px-2">
-              ...
-            </span>
-          );
+          pageButtons.push(<span key="left-ellipsis" className="px-2">...</span>);
         }
       }
 
@@ -211,11 +229,7 @@ const ViewUserListForm: React.FC = () => {
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`px-3 py-2 rounded ${
-              currentPage === i
-                ? "bg-[#6FBC44] text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
+            className={`px-3 py-2 rounded ${currentPage === i ? "bg-[#6FBC44] text-white" : "bg-gray-200 hover:bg-gray-300"}`}
           >
             {i + 1}
           </button>
@@ -225,11 +239,7 @@ const ViewUserListForm: React.FC = () => {
       // Add ellipses and last page if the current page is far from the last page
       if (currentPage < totalPages - 3) {
         if (currentPage < totalPages - 4) {
-          pageButtons.push(
-            <span key="right-ellipsis" className="px-2">
-              ...
-            </span>
-          );
+          pageButtons.push(<span key="right-ellipsis" className="px-2">...</span>);
         }
         pageButtons.push(
           <button
@@ -250,27 +260,31 @@ const ViewUserListForm: React.FC = () => {
     fetchUsers(currentPage);
   }, [currentPage]);
 
+  useEffect(() => {
+    searchUsers(new Event("submit") as unknown as React.FormEvent); // Gọi lại searchUsers khi thay đổi bộ lọc//-
+  }, [statusFilter, roleFilter]);
+   
   return (
-    <div className="flex-1 ml-[228px] bg-[#EFF5EB] p-24 min-h-screen">
-      <div className="flex justify-between items-center p-8 border-b">
+    <div className="flex-1 ml-[228px] bg-[#EFF5EB] p-20 min-h-screen">
+      <div className="flex justify-between items-center p-4 border-b">
         <h2 className="text-6xl font-bold">User List</h2>
         <div className="flex space-x-4">
-          <form onSubmit={handleSearchSubmit} className="flex space-x-4">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="border px-3 py-1 rounded"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-gray-500 shadow-md hover:shadow-lg hover:shadow-gray-500 hover:bg-[#5da639]"
-              disabled={loading}
-            >
-              {loading ? "Searching..." : "Search"}
-            </button>
-          </form>
+        <form onSubmit={searchUsers} className="flex space-x-4">
+  <input
+    type="text"
+    placeholder="Search..."
+    className="border px-3 py-1 rounded"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+  <button
+    type="submit"
+    className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-gray-500 shadow-md hover:shadow-lg hover:shadow-gray-500 hover:bg-[#5da639]"
+    disabled={loading}
+  >
+    {loading ? "Searching..." : "Search"}
+  </button>
+</form>
 
           <button
             className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-gray-500 shadow-md hover:shadow-lg hover:shadow-gray-500 hover:bg-[#5da639]"
@@ -286,7 +300,32 @@ const ViewUserListForm: React.FC = () => {
           {error}
         </div>
       )}
+      <div className="flex space-x-4 mt-4">
+        {/* Status Filter */}
+        <select
+          className="border px-3 py-2 rounded"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="">All Status</option>
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
 
+        {/* Role Filter */}
+        <select
+          className="border px-3 py-2 rounded "
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+        >
+          <option value="">All Roles</option>
+          <option value="ROLE_ADMIN">ROLE_ADMIN</option>
+          <option value="ROLE_MANAGER">ROLE_MANAGER</option>
+          <option value="ROLE_CLASS_ADMIN">ROLE_CLASS_ADMIN</option>
+          <option value="ROLE_TRAINER">ROLE_TRAINER</option>
+          <option value="ROLE_TRAINEE">ROLE_TRAINEE</option>
+        </select>
+      </div>
       {loading ? (
         <div className="text-center py-10">Loading...</div>
       ) : (
@@ -294,51 +333,29 @@ const ViewUserListForm: React.FC = () => {
           <table className="w-full mt-10 table-auto border-collapse rounded py-5">
             <thead>
               <tr className="bg-[#6FBC44] text-white">
-                <th className="px-6 py-3 uppercase tracking-wider border-r-white">
-                  #
-                </th>
-                <th className="px-6 py-3 text-left uppercase tracking-wider border-r-white">
-                  User account
-                </th>
-                <th className="px-6 py-3 text-left uppercase tracking-wider border-r-white">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left uppercase tracking-wider border-r-white">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-center uppercase tracking-wider border-r-white">
-                  Phone number
-                </th>
-                <th className="px-6 py-3 text-center uppercase tracking-wider border-r-white">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-center uppercase tracking-wider border-r-white">
-                  Details
-                </th>
+                <th className="px-6 py-3 uppercase tracking-wider border-r-white">#</th>
+                <th className="px-6 py-3 text-left uppercase tracking-wider border-r-white">Account</th>
+                <th className="px-6 py-3 text-left uppercase tracking-wider border-r-white">Role</th>
+                <th className="px-6 py-3 text-left uppercase tracking-wider border-r-white">Email</th>
+                <th className="px-6 py-3 text-center uppercase tracking-wider border-r-white">Phone number</th>
+                <th className="px-6 py-3 text-center uppercase tracking-wider border-r-white">Status</th>
+                <th className="px-6 py-3 text-center uppercase tracking-wider border-r-white">Details</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr
-                  key={user.userId}
-                  className={user.status === false ? "bg-green-300" : ""}
-                >
-                  <td className="border px-6 py-3 text-center">
-                    {user.userId}
-                  </td>
+              {users.filter(e => e.userId != currentUser?.userId).map((user) => (
+                <tr key={user.userId} className={user.status === false ? "bg-green-300" : ""}>
+                  <td className="border px-6 py-3 text-center">{user.userId}</td>
                   <td className="border px-6 py-3 text-left">{user.account}</td>
-                  <td className="border px-6 py-3 text-left">{user.roles}</td>
+                  <td className="border px-6 py-3 text-left">{user.roles || "No Role"}</td>
                   <td className="border px-6 py-3 text-left">{user.email}</td>
                   <td className="border px-6 py-3 text-center">{user.phone}</td>
                   <td className="border px-6 py-3 text-center">
                     <div className="flex items-center justify-center">
                       <div
                         onClick={() => handleToggleStatus(user.userId)}
-                        className={`flex h-6 w-12 cursor-pointer rounded-full border border-black ${
-                          user.status
-                            ? "justify-end bg-green-500"
-                            : "justify-start bg-black"
-                        } px-[1px]`}
+                        className={`flex h-6 w-12 cursor-pointer rounded-full border border-black ${user.status ? "justify-end bg-green-500" : "justify-start bg-black"
+                          } px-[1px]`}
                       >
                         <motion.div
                           className="h-5 w-5 rounded-full bg-white"
