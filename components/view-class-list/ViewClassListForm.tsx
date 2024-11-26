@@ -32,7 +32,13 @@ const ViewClassListForm: React.FC = () => {
       setLoading(true);
       const response = await axios.post(
         `${BASE_API_URL}/class-management/search`,
-        { keyword: searchTerm, page: page - 1, size: 10, orderBy: 'classId', sortDirection: 'asc' },
+        {
+          keyword: searchTerm,
+          page: page - 1,
+          size: 10,
+          orderBy: "classId",
+          sortDirection: "asc",
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -107,9 +113,9 @@ const ViewClassListForm: React.FC = () => {
         prevData.map((classItem) =>
           classItem.classId === classId
             ? {
-              ...classItem,
-              status: newStatus,
-            }
+                ...classItem,
+                status: newStatus,
+              }
             : classItem
         )
       );
@@ -125,17 +131,19 @@ const ViewClassListForm: React.FC = () => {
       toast.error("Failed to update class status");
     }
   };
-  
+
   const handleAcceptClass = async (classId: number) => {
     try {
-      const res = await axios.post(`${BASE_API_URL}/class-management/accep-class/${classId}`);
+      const res = await axios.post(
+        `${BASE_API_URL}/class-management/accep-class/${classId}`
+      );
       if (res.status === 200) {
         toast.success("Accept class successfully");
       }
     } catch (error) {
       toast.error("Accept class failed");
     }
-  }
+  };
 
   const renderPaginationButtons = () => {
     const buttons = [];
@@ -147,7 +155,11 @@ const ViewClassListForm: React.FC = () => {
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`px-3 py-2 rounded ${currentPage === i ? "bg-[#6FBC44] text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+            className={`px-3 py-2 rounded ${
+              currentPage === i
+                ? "bg-[#6FBC44] text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
           >
             {i}
           </button>
@@ -156,12 +168,20 @@ const ViewClassListForm: React.FC = () => {
     } else {
       if (currentPage > 3) {
         buttons.push(
-          <button key={1} onClick={() => handlePageChange(1)} className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300">
+          <button
+            key={1}
+            onClick={() => handlePageChange(1)}
+            className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
+          >
             1
           </button>
         );
         if (currentPage > 4) {
-          buttons.push(<span key="left-ellipsis" className="px-2">...</span>);
+          buttons.push(
+            <span key="left-ellipsis" className="px-2">
+              ...
+            </span>
+          );
         }
       }
 
@@ -174,7 +194,11 @@ const ViewClassListForm: React.FC = () => {
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`px-3 py-2 rounded ${currentPage === i ? "bg-[#6FBC44] text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+            className={`px-3 py-2 rounded ${
+              currentPage === i
+                ? "bg-[#6FBC44] text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
           >
             {i}
           </button>
@@ -183,7 +207,11 @@ const ViewClassListForm: React.FC = () => {
 
       if (currentPage < totalPages - 2) {
         if (currentPage < totalPages - 3) {
-          buttons.push(<span key="right-ellipsis" className="px-2">...</span>);
+          buttons.push(
+            <span key="right-ellipsis" className="px-2">
+              ...
+            </span>
+          );
         }
         buttons.push(
           <button
@@ -214,110 +242,141 @@ const ViewClassListForm: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 setCurrentPage(1);
                 fetchClasses(currentPage);
               }
             }}
           />
-          <button onClick={() => {
-            setCurrentPage(1);
-            fetchClasses(currentPage);
-          }} className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]">
+          <button
+            onClick={() => {
+              setCurrentPage(1);
+              fetchClasses(currentPage);
+            }}
+            className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]"
+          >
             Search
           </button>
-          {role === "ROLE_MANAGER" && (
-          <button onClick={() => { router.push('/feature/add-new-class') }} className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]">
-            + Add Class
-          </button>
+          {(role === "ROLE_MANAGER" || role === "ROLE_ADMIN") && (
+            <button
+              onClick={() => {
+                router.push("/feature/add-new-class");
+              }}
+              className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]"
+            >
+              + Add Class
+            </button>
           )}
         </div>
       </div>
 
       <table className="w-full mt-6 table-auto border-collapse rounded overflow-hidden">
-  <thead>
-    <tr className="bg-[#6FBC44] text-white text-sm">
-      <th className="px-4 py-3 border text-center">#</th>
-      <th className="px-4 py-3 border text-left">Class Code</th>
-      <th className="px-4 py-3 border text-left">Class Admin</th>
-      <th className="px-4 py-3 border text-center">Number Trainee</th>
-      <th className="px-4 py-3 border text-center">Start Date</th>
-      <th className="px-4 py-3 border text-center">End Date</th>
-      <th className="px-4 py-3 border text-center">Status</th>
-      <th className="px-4 py-3 border text-center">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {classes.map((classItem) => (
-      <tr key={classItem.classId} className={!classItem.status ? "bg-green-300" : ""}>
-        
-        <td className="border px-6 py-3 text-center">{classItem.classId}</td>
-
-        {/* Class Code */}
-        <td className="px-6 py-3 border text-left text-blue-500 hover:underline cursor-pointer"
-        onClick={() => router.push(`/feature/view-class-list/${classItem.classId}`)}
-        >
-            {classItem.classCode}d
-        </td>
-
-        {/* Class Admin */}
-        <td className="px-6 py-3 border text-left">{classItem.className}</td>
-
-        {/* Number Trainee */}
-        <td className="px-6 py-3 border text-center">{classItem.traineeCount || "0/0"}</td>
-
-        {/* Start Date */}
-        <td className="px-6 py-3 border text-center">
-          {moment(classItem.startDate).format("DD/MM/YYYY")}
-        </td>
-
-        {/* End Date */}
-        <td className="px-6 py-3 border text-center">
-          {moment(classItem.endDate).format("DD/MM/YYYY")}
-        </td>
-
-        {/* Status */}
-        <td className="px-6 py-3 border text-center">
-          <div
-            onClick={() => handleToggleStatus(classItem.classId)}
-            className={`inline-flex items-center h-6 w-12 cursor-pointer rounded-full ${
-              classItem.status ? "justify-end bg-green-500" : "justify-start bg-black"
-            } px-[1px]`}
-          >
-            <motion.div
-              className="h-5 w-5 rounded-full bg-white"
-              layout
-              transition={{ type: "spring", stiffness: 700, damping: 30 }}
-            />
-          </div>
-        </td>
-
-        {/* Action */}
-        <td className="px-6 py-3 border text-center">
-          <div className="flex justify-center space-x-2">
-            {/* Nút Tích */}
-            <button
-              onClick={() => handleAcceptClass(classItem.classId)}
-              className="bg-green-500 text-white px-2  rounded-full hover:bg-green-700"
+        <thead>
+          <tr className="bg-[#6FBC44] text-white text-sm">
+            <th className="px-4 py-3 border text-center">#</th>
+            <th className="px-4 py-3 border text-left">Class Code</th>
+            <th className="px-4 py-3 border text-left">Class Name</th>
+            <th className="px-4 py-3 border text-left">Class Admin</th>
+            <th className="px-4 py-3 border text-center">Number Trainee</th>
+            <th className="px-4 py-3 border text-center">Start Date</th>
+            <th className="px-4 py-3 border text-center">End Date</th>
+            <th className="px-4 py-3 border text-center">Status</th>
+            <th className="px-4 py-3 border text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {classes.map((classItem, index) => (
+            <tr
+              key={classItem.classId}
+              className={!classItem.status ? "bg-green-300" : ""}
             >
-              ✔
-            </button>
+              <td className="border px-6 py-3 text-center">{index + 1}</td>
 
-            {/* Nút Xóa */}
-            <button
-              onClick={() => toast.error("Delete action triggered")}
-              className="bg-red-500 text-white px-2 rounded-full hover:bg-red-700"
-            >
-              ✖
-            </button>
-          </div>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+              {/* Class Code */}
+              <td className="px-6 py-3 border text-left text-blue-500 hover:underline cursor-pointer">
+                {classItem.classCode}
+              </td>
 
+              {/* Class Admin */}
+              <td
+                className="px-6 py-3 border text-left text-blue-500  hover:underline cursor-pointer"
+                onClick={() =>
+                  router.push(
+                    `/feature/view-class-list/update/${classItem.classId}`
+                  )
+                }
+              >
+                {classItem.className}
+              </td>
 
+              {/* Class Admin */}
+              <td className="px-6 py-3 border text-left">{classItem.admin}</td>
+
+              {/* Number Trainee */}
+              <td className="px-6 py-3 border text-center">
+                {classItem.traineeNo}
+              </td>
+
+              {/* Start Date */}
+              <td className="px-6 py-3 border text-center">
+                {classItem.startDate
+                  ? moment(classItem.startDate).format("DD/MM/YYYY")
+                  : ""}
+              </td>
+
+              {/* End Date */}
+              <td className="px-6 py-3 border text-center">
+                {classItem.endDate
+                  ? moment(classItem.endDate).format("DD/MM/YYYY")
+                  : ""}
+              </td>
+
+              {/* Status */}
+              <td className="px-6 py-3 border text-center">
+                <div
+                  onClick={() => handleToggleStatus(classItem.classId)}
+                  className={`inline-flex items-center h-6 w-12 cursor-pointer rounded-full ${
+                    classItem.status
+                      ? "justify-end bg-green-500"
+                      : "justify-start bg-black"
+                  } px-[1px]`}
+                >
+                  <motion.div
+                    className="h-5 w-5 rounded-full bg-white"
+                    layout
+                    transition={{ type: "spring", stiffness: 700, damping: 30 }}
+                  />
+                </div>
+              </td>
+
+              {/* Action */}
+              <td className="px-6 py-3 border text-center">
+                {(role === "ROLE_ADMIN" ||
+                  role === "SYSTEM_ADMIN" ||
+                  role === "ROLE_MANAGER") && (
+                  <div className="flex justify-center space-x-2">
+                    {/* Nút Tích */}
+                    <button
+                      onClick={() => handleAcceptClass(classItem.classId)}
+                      className="bg-green-500 text-white px-2  rounded-full hover:bg-green-700"
+                    >
+                      ✔
+                    </button>
+
+                    {/* Nút Xóa */}
+                    <button
+                      onClick={() => toast.error("Delete action triggered")}
+                      className="bg-red-500 text-white px-2 rounded-full hover:bg-red-700"
+                    >
+                      ✖
+                    </button>
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       {/* Pagination Controls */}
       <div className="pagination mt-4 flex align-middle w-full justify-center space-x-2">

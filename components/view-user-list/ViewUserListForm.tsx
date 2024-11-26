@@ -75,7 +75,13 @@ const ViewUserListForm: React.FC = () => {
       setLoading(true);
       const response = await axios.post(
         `${BASE_API_URL}/user/search`,
-        { keyword: searchTerm, page: page - 1, size: 10, orderBy: 'id', sortDirection: 'asc' },
+        {
+          keyword: searchTerm,
+          page: page - 1,
+          size: 10,
+          orderBy: "id",
+          sortDirection: "asc",
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -150,14 +156,13 @@ const ViewUserListForm: React.FC = () => {
   const handlePageChange = (page: number) => {
     if (page < 0 || page >= totalPages) return;
     setCurrentPage(page);
-  
+
     if (searchTerm) {
       searchUsers(page); // Tìm kiếm nếu có từ khóa
     } else {
       fetchUsers(page); // Lấy danh sách đầy đủ nếu không có từ khóa
     }
   };
-  
 
   const renderPaginationButtons = () => {
     const pageButtons = [];
@@ -318,49 +323,55 @@ const ViewUserListForm: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr
-                  key={user.userId}
-                  className={user.status === false ? "bg-green-300" : ""}
-                >
-                  <td className="border px-6 py-3 text-center">
-                    {user.userId}
-                  </td>
-                  <td className="border px-6 py-3 text-left">{user.account}</td>
-                  <td className="border px-6 py-3 text-left">{user.roles}</td>
-                  <td className="border px-6 py-3 text-left">{user.email}</td>
-                  <td className="border px-6 py-3 text-center">{user.phone}</td>
-                  <td className="border px-6 py-3 text-center">
-                    <div className="flex items-center justify-center">
-                      <div
-                        onClick={() => handleToggleStatus(user.userId)}
-                        className={`flex h-6 w-12 cursor-pointer rounded-full border border-black ${
-                          user.status
-                            ? "justify-end bg-green-500"
-                            : "justify-start bg-black"
-                        } px-[1px]`}
-                      >
-                        <motion.div
-                          className="h-5 w-5 rounded-full bg-white"
-                          layout
-                          transition={{
-                            type: "spring",
-                            stiffness: 700,
-                            damping: 30,
-                          }}
-                        />
+              {users
+                .filter((user) => user.roles[0] !== "ROLE_ADMIN")
+                .map((user, index) => (
+                  <tr
+                    key={user.userId}
+                    className={user.status === false ? "bg-green-300" : ""}
+                  >
+                    <td className="border px-6 py-3 text-center">
+                      {index + 1}
+                    </td>
+                    <td className="border px-6 py-3 text-left">
+                      {user.account}
+                    </td>
+                    <td className="border px-6 py-3 text-left">{user.roles}</td>
+                    <td className="border px-6 py-3 text-left">{user.email}</td>
+                    <td className="border px-6 py-3 text-center">
+                      {user.phone}
+                    </td>
+                    <td className="border px-6 py-3 text-center">
+                      <div className="flex items-center justify-center">
+                        <div
+                          onClick={() => handleToggleStatus(user.userId)}
+                          className={`flex h-6 w-12 cursor-pointer rounded-full border border-black ${
+                            user.status
+                              ? "justify-end bg-green-500"
+                              : "justify-start bg-black"
+                          } px-[1px]`}
+                        >
+                          <motion.div
+                            className="h-5 w-5 rounded-full bg-white"
+                            layout
+                            transition={{
+                              type: "spring",
+                              stiffness: 700,
+                              damping: 30,
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="border px-6 py-3 justify-center-center">
-                    <div className="flex justify-center">
-                      <Link href={`/feature/view-user-detail/${user.userId}`}>
-                        <FiEdit className="w-6 h-6 text-green-600 hover:text-green-800" />
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="border px-6 py-3 justify-center-center">
+                      <div className="flex justify-center">
+                        <Link href={`/feature/view-user-detail/${user.userId}`}>
+                          <FiEdit className="w-6 h-6 text-green-600 hover:text-green-800" />
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
 

@@ -44,7 +44,7 @@ const AddSubjectForm: React.FC = () => {
     try {
       const response = await axios.post(
         `${BASE_API_URL}/subject/search`,
-        { page: 0, size: 100, orderBy: 'id', sortDirection: 'asc' },
+        { page: 0, size: 100, orderBy: "id", sortDirection: "asc" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setAllSubjects(response.data.data.dataSource || []);
@@ -75,14 +75,13 @@ const AddSubjectForm: React.FC = () => {
             .required("Mark Weight is required"),
         })
       )
-      .test(
-        "total-weight",
-        "Total mark weight must be 100",
-        (schemes) => {
-          const totalWeight = schemes.reduce((sum, scheme) => sum + scheme.markWeight, 0);
-          return totalWeight === 100;
-        }
-      ),
+      .test("total-weight", "Total mark weight must be 100", (schemes) => {
+        const totalWeight = schemes.reduce(
+          (sum, scheme) => sum + scheme.markWeight,
+          0
+        );
+        return totalWeight === 100;
+      }),
     lessonList: Yup.array().of(
       Yup.object({
         lesson: Yup.string().required("Lesson is required"),
@@ -140,7 +139,13 @@ const AddSubjectForm: React.FC = () => {
           descriptions: values.descriptions,
           status: true,
           schemes: values.schemes,
-          lessonList: values.lessonList,
+          lessonList: values.lessonList.map(
+            (lesson: SubjectLesson, index: number) => ({
+              lessonName: lesson.lesson,
+              sessionOrder: index + 1,
+              description: lesson.description,
+            })
+          ),
           documentLink: "",
         },
         {
@@ -149,7 +154,10 @@ const AddSubjectForm: React.FC = () => {
       );
       router.push("/feature/view-subject-list");
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.data?.errorCode === "ERR026") {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data?.errorCode === "ERR026"
+      ) {
         setError(err.response.data.message);
       } else {
         setError("Error adding subject.");
@@ -187,10 +195,22 @@ const AddSubjectForm: React.FC = () => {
               }}
             >
               <Tab.List className="flex space-x-4 mb-8">
-                <Tab className={({ selected }) => selected ? "bg-[#6FBC44] text-white font-bold py-2 px-4 rounded" : "bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 rounded"}>
+                <Tab
+                  className={({ selected }) =>
+                    selected
+                      ? "bg-[#6FBC44] text-white font-bold py-2 px-4 rounded"
+                      : "bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 rounded"
+                  }
+                >
                   General Info
                 </Tab>
-                <Tab className={({ selected }) => selected ? "bg-[#6FBC44] text-white font-bold py-2 px-4 rounded" : "bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 rounded cursor-not-allowed"}>
+                <Tab
+                  className={({ selected }) =>
+                    selected
+                      ? "bg-[#6FBC44] text-white font-bold py-2 px-4 rounded"
+                      : "bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 rounded cursor-not-allowed"
+                  }
+                >
                   Session List
                 </Tab>
               </Tab.List>
@@ -198,42 +218,105 @@ const AddSubjectForm: React.FC = () => {
                 <Tab.Panel>
                   <Form className="grid grid-cols-2 gap-x-16 gap-y-8">
                     <div className="col-span-1">
-                      <label className="block font-bold text-3xl mb-2">Subject Name*</label>
-                      <Field name="subjectName" placeholder="Input Subject Name" className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded" />
-                      <ErrorMessage name="subjectName" component="div" className="text-red-500" />
-                      <label className="block font-bold text-3xl mb-2 mt-4">Description</label>
-                      <Field as="textarea" name="descriptions" placeholder="Input Description" className="p-2.5 w-full border border-[#D4CBCB] h-20 rounded" />
-                      <ErrorMessage name="descriptions" component="div" className="text-red-500" />
+                      <label className="block font-bold text-3xl mb-2">
+                        Subject Name*
+                      </label>
+                      <Field
+                        name="subjectName"
+                        placeholder="Input Subject Name"
+                        className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded"
+                      />
+                      <ErrorMessage
+                        name="subjectName"
+                        component="div"
+                        className="text-red-500"
+                      />
+                      <label className="block font-bold text-3xl mb-2 mt-4">
+                        Description
+                      </label>
+                      <Field
+                        as="textarea"
+                        name="descriptions"
+                        placeholder="Input Description"
+                        className="p-2.5 w-full border border-[#D4CBCB] h-20 rounded"
+                      />
+                      <ErrorMessage
+                        name="descriptions"
+                        component="div"
+                        className="text-red-500"
+                      />
                     </div>
                     <div className="col-span-1">
-                      <label className="block font-bold text-3xl mb-2">Subject Code*</label>
-                      <Field name="subjectCode" placeholder="Input Subject Code" className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded" />
-                      <ErrorMessage name="subjectCode" component="div" className="text-red-500" />
-                      <label className="block font-bold text-3xl mb-2 mt-4">Weight Grade</label>
+                      <label className="block font-bold text-3xl mb-2">
+                        Subject Code*
+                      </label>
+                      <Field
+                        name="subjectCode"
+                        placeholder="Input Subject Code"
+                        className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded"
+                      />
+                      <ErrorMessage
+                        name="subjectCode"
+                        component="div"
+                        className="text-red-500"
+                      />
+                      <label className="block font-bold text-3xl mb-2 mt-4">
+                        Weight Grade
+                      </label>
                       <FieldArray name="schemes">
                         {({ remove, push }) => (
                           <div>
                             <table className="w-full border border-[#D4CBCB] text-center">
                               <thead>
                                 <tr className="bg-[#6FBC44] text-white">
-                                  <th className="px-4 py-3 uppercase tracking-wider">Mark Name</th>
-                                  <th className="px-4 py-3 uppercase tracking-wider">Mark Weight (%)</th>
-                                  <th className="px-4 py-3 uppercase tracking-wider">Actions</th>
+                                  <th className="px-4 py-3 uppercase tracking-wider">
+                                    Mark Name
+                                  </th>
+                                  <th className="px-4 py-3 uppercase tracking-wider">
+                                    Mark Weight (%)
+                                  </th>
+                                  <th className="px-4 py-3 uppercase tracking-wider">
+                                    Actions
+                                  </th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {values.schemes.map((scheme, index) => (
-                                  <tr key={index} className="border-b border-[#D4CBCB]">
+                                  <tr
+                                    key={index}
+                                    className="border-b border-[#D4CBCB]"
+                                  >
                                     <td className="px-4 py-2">
-                                      <Field name={`schemes[${index}].markName`} placeholder="Mark Name" className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded" />
-                                      <ErrorMessage name={`schemes[${index}].markName`} component="div" className="text-red-500 text-sm mt-1" />
+                                      <Field
+                                        name={`schemes[${index}].markName`}
+                                        placeholder="Mark Name"
+                                        className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded"
+                                      />
+                                      <ErrorMessage
+                                        name={`schemes[${index}].markName`}
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                      />
                                     </td>
                                     <td className="px-4 py-2">
-                                      <Field name={`schemes[${index}].markWeight`} type="number" placeholder="Mark Weight" className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded" />
-                                      <ErrorMessage name={`schemes[${index}].markWeight`} component="div" className="text-red-500 text-sm mt-1" />
+                                      <Field
+                                        name={`schemes[${index}].markWeight`}
+                                        type="number"
+                                        placeholder="Mark Weight"
+                                        className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded"
+                                      />
+                                      <ErrorMessage
+                                        name={`schemes[${index}].markWeight`}
+                                        component="div"
+                                        className="text-red-500 text-sm mt-1"
+                                      />
                                     </td>
                                     <td className="px-4 py-2">
-                                      <button type="button" onClick={() => remove(index)} className="text-red-500 hover:text-red-700">
+                                      <button
+                                        type="button"
+                                        onClick={() => remove(index)}
+                                        className="text-red-500 hover:text-red-700"
+                                      >
                                         <Trash2 className="w-6 h-6" />
                                       </button>
                                     </td>
@@ -241,18 +324,33 @@ const AddSubjectForm: React.FC = () => {
                                 ))}
                               </tbody>
                             </table>
-                            <button type="button" onClick={() => push({ markName: "", markWeight: 0 })} className="mt-4 bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                push({ markName: "", markWeight: 0 })
+                              }
+                              className="mt-4 bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]"
+                            >
                               + Add Scheme
                             </button>
-                            {errors.schemes && typeof errors.schemes === 'string' && (
-                              <div className="text-red-500 text-sm mt-1">{errors.schemes}</div>
-                            )}
+                            {errors.schemes &&
+                              typeof errors.schemes === "string" && (
+                                <div className="text-red-500 text-sm mt-1">
+                                  {errors.schemes}
+                                </div>
+                              )}
                           </div>
                         )}
                       </FieldArray>
                     </div>
                     <div className="flex mt-10 col-span-2 gap-x-6">
-                      <button type="button" onClick={() => handleNext(validateForm, values, setTouched)} className="text-white bg-[#6FBC44] font-bold shadow-md hover:shadow-lg hover:bg-[#5da639] py-3 px-6 rounded mr-10">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleNext(validateForm, values, setTouched)
+                        }
+                        className="text-white bg-[#6FBC44] font-bold shadow-md hover:shadow-lg hover:bg-[#5da639] py-3 px-6 rounded mr-10"
+                      >
                         Next
                       </button>
                     </div>
@@ -266,29 +364,71 @@ const AddSubjectForm: React.FC = () => {
                           <table className="w-full border border-[#D4CBCB] text-center">
                             <thead>
                               <tr className="bg-[#6FBC44] text-white">
-                                <th className="px-4 py-3 uppercase tracking-wider">Lesson</th>
-                                <th className="px-4 py-3 uppercase tracking-wider">Session Order</th>
-                                <th className="px-4 py-3 uppercase tracking-wider">Description</th>
-                                <th className="px-4 py-3 uppercase tracking-wider">Actions</th>
+                                <th className="px-4 py-3 uppercase tracking-wider">
+                                  Session Order
+                                </th>
+                                <th className="px-4 py-3 uppercase tracking-wider">
+                                  Lesson
+                                </th>
+                                <th className="px-4 py-3 uppercase tracking-wider">
+                                  Description
+                                </th>
+                                <th className="px-4 py-3 uppercase tracking-wider">
+                                  Actions
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
                               {values.lessonList.map((lesson, index) => (
-                                <tr key={index} className="border-b border-[#D4CBCB]">
+                                <tr
+                                  key={index}
+                                  className="border-b border-[#D4CBCB]"
+                                >
                                   <td className="px-4 py-2">
-                                    <Field name={`lessonList[${index}].lesson`} placeholder="Lesson" className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded" />
-                                    <ErrorMessage name={`lessonList[${index}].lesson`} component="div" className="text-red-500 text-sm mt-1" />
+                                    <input
+                                      type="number"
+                                      name={`lessonList[${index}].sessionOrder`}
+                                      placeholder="Session Order"
+                                      className="p-2.5 w-full h-11 rounded"
+                                      readOnly
+                                      value={index + 1}
+                                    />
+                                    <ErrorMessage
+                                      name={`lessonList[${index}].sessionOrder`}
+                                      component="div"
+                                      className="text-red-500 text-sm mt-1"
+                                    />
                                   </td>
                                   <td className="px-4 py-2">
-                                    <Field name={`lessonList[${index}].sessionOrder`} type="number" placeholder="Session Order" className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded" />
-                                    <ErrorMessage name={`lessonList[${index}].sessionOrder`} component="div" className="text-red-500 text-sm mt-1" />
+                                    <Field
+                                      name={`lessonList[${index}].lesson`}
+                                      placeholder="Lesson"
+                                      className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded"
+                                    />
+                                    <ErrorMessage
+                                      name={`lessonList[${index}].lesson`}
+                                      component="div"
+                                      className="text-red-500 text-sm mt-1"
+                                    />
                                   </td>
                                   <td className="px-4 py-2">
-                                    <Field name={`lessonList[${index}].description`} placeholder="Description" className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded" />
-                                    <ErrorMessage name={`lessonList[${index}].description`} component="div" className="text-red-500 text-sm mt-1" />
+                                    <Field
+                                      name={`lessonList[${index}].description`}
+                                      placeholder="Description"
+                                      className="p-2.5 w-full border border-[#D4CBCB] h-11 rounded"
+                                    />
+                                    <ErrorMessage
+                                      name={`lessonList[${index}].description`}
+                                      component="div"
+                                      className="text-red-500 text-sm mt-1"
+                                    />
                                   </td>
                                   <td className="px-4 py-2">
-                                    <button type="button" onClick={() => remove(index)} className="text-red-500 hover:text-red-700">
+                                    <button
+                                      type="button"
+                                      onClick={() => remove(index)}
+                                      className="text-red-500 hover:text-red-700"
+                                    >
                                       <Trash2 className="w-6 h-6" />
                                     </button>
                                   </td>
@@ -296,17 +436,33 @@ const AddSubjectForm: React.FC = () => {
                               ))}
                             </tbody>
                           </table>
-                          <button type="button" onClick={() => push({ lesson: "", sessionOrder: 1, description: "" })} className="mt-4 bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              push({
+                                lesson: "",
+                                description: "",
+                              })
+                            }
+                            className="mt-4 bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]"
+                          >
                             + Add Lesson
                           </button>
                         </div>
                       )}
                     </FieldArray>
                     <div className="flex mt-10 col-span-2 gap-x-6">
-                      <button type="button" onClick={() => setCurrentTab(0)} className="text-black bg-[#D5DCD0] font-bold shadow-md hover:shadow-lg hover:bg-gray-400 py-3 px-6 rounded">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentTab(0)}
+                        className="text-black bg-[#D5DCD0] font-bold shadow-md hover:shadow-lg hover:bg-gray-400 py-3 px-6 rounded"
+                      >
                         Back
                       </button>
-                      <button type="submit" className="text-white bg-[#6FBC44] font-bold shadow-md hover:shadow-lg hover:bg-[#5da639] py-3 px-6 rounded mr-10">
+                      <button
+                        type="submit"
+                        className="text-white bg-[#6FBC44] font-bold shadow-md hover:shadow-lg hover:bg-[#5da639] py-3 px-6 rounded mr-10"
+                      >
                         Submit
                       </button>
                     </div>
