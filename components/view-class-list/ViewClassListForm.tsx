@@ -124,6 +124,17 @@ const ViewClassListForm: React.FC = () => {
       toast.error("Failed to update class status");
     }
   };
+  
+  const handleAcceptClass = async (classId: number) => {
+    try {
+      const res = await axios.post(`${BASE_API_URL}/class-management/accep-class/${classId}`);
+      if (res.status === 200) {
+        toast.success("Accept class successfully");
+      }
+    } catch (error) {
+      toast.error("Accept class failed");
+    }
+  }
 
   const renderPaginationButtons = () => {
     const buttons = [];
@@ -188,6 +199,9 @@ const ViewClassListForm: React.FC = () => {
     return buttons;
   };
 
+  const role = localStorage.getItem("role");
+  console.log(role);
+
   return (
     <div className="flex-1 ml-[228px] bg-[#EFF5EB] p-24 min-h-screen">
       <div className="flex justify-between items-center p-8 border-b">
@@ -212,9 +226,11 @@ const ViewClassListForm: React.FC = () => {
           }} className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]">
             Search
           </button>
+          {role === "ROLE_MANAGER" && (
           <button onClick={() => { router.push('/feature/add-new-class') }} className="bg-[#6FBC44] text-white font-bold py-2 px-4 rounded shadow-md hover:shadow-lg hover:bg-[#5da639]">
             + Add Class
           </button>
+          )}
         </div>
       </div>
 
@@ -238,14 +254,14 @@ const ViewClassListForm: React.FC = () => {
         <td className="border px-6 py-3 text-center">{classItem.classId}</td>
 
         {/* Class Code */}
-        <td className="px-6 py-3 border text-left text-blue-500 hover:underline cursor-pointer">
-          <Link href="#">
-            {classItem.classCode}
-          </Link>
+        <td className="px-6 py-3 border text-left text-blue-500 hover:underline cursor-pointer"
+        onClick={() => role === 'ROLE_CLASS_ADMIN' && router.push(`/feature/view-class-list/${classItem.classId}`)}
+        >
+            {classItem.classCode}d
         </td>
 
         {/* Class Admin */}
-        <td className="px-6 py-3 border text-left">{classItem.admin}</td>
+        <td className="px-6 py-3 border text-left">{classItem.className}</td>
 
         {/* Number Trainee */}
         <td className="px-6 py-3 border text-center">{classItem.traineeCount || "0/0"}</td>
@@ -281,7 +297,7 @@ const ViewClassListForm: React.FC = () => {
           <div className="flex justify-center space-x-2">
             {/* Nút Tích */}
             <button
-              onClick={() => toast.success("Approve action triggered")}
+              onClick={() => handleAcceptClass(classItem.classId)}
               className="bg-green-500 text-white px-2  rounded-full hover:bg-green-700"
             >
               ✔
