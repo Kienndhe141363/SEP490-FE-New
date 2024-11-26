@@ -130,7 +130,7 @@ const page: React.FC = () => {
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-3xl font-medium">
-              Class Detail: {data?.classCode}
+              Class Detail: {data?.className}
             </h1>
           </div>
 

@@ -266,14 +266,12 @@ const ViewSubjectListForm: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {subject.map((subject) => (
+            {subject.map((subject, index) => (
               <tr
                 key={subject.subjectId}
                 className={!subject.status ? "bg-green-300" : ""}
               >
-                <td className="border px-6 py-3 text-center">
-                  {subject.subjectId}
-                </td>
+                <td className="border px-6 py-3 text-center">{index + 1}</td>
                 <td className="border px-6 py-3 text-left">
                   {subject.subjectCode}
                 </td>

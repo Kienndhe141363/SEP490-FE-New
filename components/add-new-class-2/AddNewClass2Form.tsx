@@ -325,7 +325,7 @@ const AddNewClass2Form = ({
                 <input
                   type="text"
                   className="w-full border p-2"
-                  value={data.curriculum.curriculumName}
+                  value={data.curriculum?.curriculumName}
                   readOnly
                 />
               </div>

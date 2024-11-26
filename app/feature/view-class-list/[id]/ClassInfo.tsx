@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 type Props = {
   id: any;
   data: any;
@@ -8,11 +10,11 @@ const ClassInfo = ({ id, data }: Props) => {
     <div className="grid grid-cols-2 gap-x-8 gap-y-6">
       {/* tôi muốn hiển thị label và input nằm ngang như trong file figma  */}
       <div className="flex items-center">
-        <label className="block text-lg font-medium w-48">Class Name:</label>
+        <label className="block text-lg font-medium w-48">Class Code:</label>
         <input
           type="text"
           className="w-full h-10 px-3"
-          value={data?.className}
+          value={data?.classCode}
           readOnly
         />
       </div>
@@ -30,7 +32,7 @@ const ClassInfo = ({ id, data }: Props) => {
         <input
           type="text"
           className="w-full h-10 px-3"
-          value={data?.admin}
+          // value={data?.admin}
           readOnly
         />
       </div>
@@ -77,7 +79,7 @@ const ClassInfo = ({ id, data }: Props) => {
         <input
           type="text"
           className="w-full h-10 px-3"
-          value={data?.admin}
+          // value={data?.admin}
           readOnly
         />
       </div>
@@ -86,7 +88,7 @@ const ClassInfo = ({ id, data }: Props) => {
         <input
           type="text"
           className="w-full h-10 px-3"
-          value={data?.admin}
+          // value={data?.admin}
           readOnly
         />
       </div>
@@ -95,7 +97,7 @@ const ClassInfo = ({ id, data }: Props) => {
         <input
           type="text"
           className="w-full h-10 px-3"
-          value={data?.admin}
+          // value={data?.admin}
           readOnly
         />
       </div>
@@ -104,7 +106,7 @@ const ClassInfo = ({ id, data }: Props) => {
         <input
           type="text"
           className="w-full h-10 px-3"
-          value={data?.admin}
+          // value={data?.admin}
           readOnly
         />
       </div>
