@@ -9,6 +9,7 @@ import { getJwtToken } from "@/lib/utils";
 import Trainee from "./Trainee";
 import Session from "./Session";
 import useRole from "@/hooks/useRole";
+import Grade from "./Grade";
 
 const page: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Class Info");
@@ -47,7 +48,7 @@ const page: React.FC = () => {
       case "Attendance":
         return <div>attendance</div>;
       case "Grade":
-        return <div>grade</div>;
+        return <Grade id={id} />;
       case "Session":
         return <Session id={id} />;
       default:

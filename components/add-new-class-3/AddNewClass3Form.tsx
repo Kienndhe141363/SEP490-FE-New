@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
+import axios from "axios";
 
 interface AddNewClass3FormProps {
   setActiveStep: (step: number) => void;
@@ -25,6 +26,7 @@ const AddNewClass3Form = ({
   const activeTab = "Trainee";
   console.log(data);
   const [listTrainee, setListTrainee] = useState([]);
+  const [listUserIdsRemoved, setListUserIdsRemoved] = useState([]);
 
   const fetchListTrainee = async () => {
     try {
@@ -36,6 +38,7 @@ const AddNewClass3Form = ({
       );
       const res = await response.json();
       setListTrainee(res?.data);
+      setListUserIdsRemoved([]);
     } catch (error) {
       console.error(error);
     }
@@ -50,12 +53,32 @@ const AddNewClass3Form = ({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("e", e);
-    setActiveStep(3);
+    try {
+      if (listUserIdsRemoved.length > 0) {
+        const paramsListUserIdsRemoved =
+          listUserIdsRemoved.join("&listUserIds=");
+
+        await axios.post(
+          `${BASE_API_URL}/trainee/remove-trainee-by-class?classId=${data.classId}&listUserIds=${paramsListUserIdsRemoved}`,
+          {
+            classId: data.classId,
+            listUserIds: listUserIdsRemoved,
+          },
+          {
+            headers: { Authorization: `Bearer ${getJwtToken()}` },
+          }
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setActiveStep(3);
+    }
   };
 
   const handleRemoveFromClass = (id: number) => {
-    const userToRemove = listTrainee.find((user) => user.id === id);
+    setListTrainee((prev) => prev.filter((trainee) => trainee.userId !== id));
+    setListUserIdsRemoved((prev) => [...prev, id]);
   };
 
   console.log(data);
@@ -242,7 +265,7 @@ const AddNewClass3Form = ({
                       </td>
                       <td className="py-4 px-6 text-center">
                         <button
-                          onClick={() => handleRemoveFromClass(trainee.id)}
+                          onClick={() => handleRemoveFromClass(trainee.userId)}
                         >
                           <MinusCircle className="w-6 h-6 text-red-500" />
                         </button>
@@ -264,7 +287,7 @@ const AddNewClass3Form = ({
               <button
                 className="px-8 py-2 bg-[#6FBC44] text-white rounded"
                 onClick={handleSubmit}
-                disabled={listTrainee.length === 0}
+                // disabled={listTrainee.length === 0}
               >
                 Save
               </button>

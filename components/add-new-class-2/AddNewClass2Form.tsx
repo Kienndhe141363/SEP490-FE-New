@@ -125,12 +125,14 @@ const AddNewClass2Form = ({
       console.error(error);
     }
   };
-
+  console.log(data);
   useEffect(() => {
     fetchListLocation();
     fetchListGeneration();
     fetchListTrainer();
-    fetchListSubject();
+    if (data?.classId) {
+      fetchListSubject();
+    }
 
     // if (data?.subjectList?.length) {
     //   setFormData({
@@ -325,7 +327,7 @@ const AddNewClass2Form = ({
                 <input
                   type="text"
                   className="w-full border p-2"
-                  value={data.curriculum?.curriculumName}
+                  value={data?.curriculumName}
                   readOnly
                 />
               </div>

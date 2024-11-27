@@ -300,11 +300,21 @@ const ViewClassListForm: React.FC = () => {
               {/* Class Admin */}
               <td
                 className="px-6 py-3 border text-left text-blue-500  hover:underline cursor-pointer"
-                onClick={() =>
-                  router.push(
-                    `/feature/view-class-list/update/${classItem.classId}`
-                  )
-                }
+                onClick={() => {
+                  if (
+                    role === "ROLE_ADMIN" ||
+                    role === "SYSTEM_ADMIN" ||
+                    role === "ROLE_MANAGER"
+                  ) {
+                    router.push(
+                      `/feature/view-class-list/${classItem.classId}`
+                    );
+                  } else {
+                    router.push(
+                      `/feature/view-class-list/update/${classItem.classId}`
+                    );
+                  }
+                }}
               >
                 {classItem.className}
               </td>
