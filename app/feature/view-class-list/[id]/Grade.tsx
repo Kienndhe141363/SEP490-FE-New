@@ -16,62 +16,74 @@ type Props = {
 };
 
 const Grade = ({ id }: Props) => {
-  // State for subject selection
-  const [selectedSubject, setSelectedSubject] = useState("java");
+  const [listTrainee, setListTrainee] = useState([]);
+  const [listSubject, setListSubject] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [listSchemes, setListSchemes] = useState([]);
 
-  // State for students data
-  const [students, setStudents] = useState<any[]>([
-    // {
-    //   id: 1,
-    //   name: "Nguyễn Văn A",
-    //   email: "dieuntphe161355@gmail.com",
-    //   assignmentAverage: 9.7,
-    //   finalAverage: 8.0,
-    // },
-    // {
-    //   id: 2,
-    //   name: "Trần Văn B",
-    //   email: "dieuntphe161355@gmail.com",
-    //   assignmentAverage: null,
-    //   finalAverage: null,
-    // },
-    // {
-    //   id: 3,
-    //   name: "Mã Đình Thị Thái H",
-    //   email: "dieuntphe161355@gmail.com",
-    //   assignmentAverage: null,
-    //   finalAverage: null,
-    // },
-    // {
-    //   id: 4,
-    //   name: "Hoàng Hoái A",
-    //   email: "dieuntphe161355@gmail.com",
-    //   assignmentAverage: null,
-    //   finalAverage: null,
-    // },
-    // {
-    //   id: 5,
-    //   name: "Đinh Thái M",
-    //   email: "dieuntphe161355@gmail.com",
-    //   assignmentAverage: null,
-    //   finalAverage: null,
-    // },
-  ]);
+  // const listSchemes = listSubject?.find(
+  //   (subject: any) => subject.subjectId === selectedSubject
+  // )?.schemes;
+
+  const fetchListTrainee = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/class-management/get-trainee-in-class/${id}`,
+        {
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      setListTrainee(res?.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchListSchemesBySubject = async (subjectId: number) => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/subject/detail/${subjectId}`,
+        {
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      if (res?.data) {
+        return res?.data;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchListSubject = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/subject/get-subject-in-class/${id}`,
+        {
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      if (res?.data) {
+        const listSubjectScheme = await Promise.all(
+          res?.data.map(async (subject: any) => {
+            const schemes = await fetchListSchemesBySubject(subject.subjectId);
+            return schemes;
+          })
+        );
+        setListSubject(listSubjectScheme);
+        setSelectedSubject(listSubjectScheme[0]?.subjectId);
+        setListSchemes(listSubjectScheme[0]?.schemes);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const fetchData = async () => {
     try {
-      // const response = await fetch(`${BASE_API_URL}/grade-management/search`, {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     classId: id,
-      //     status: true,
-      //     pageable: {
-      //       page: 1,
-      //       size: 10,
-      //     },
-      //   }),
-      //   headers: { Authorization: `Bearer ${getJwtToken()}` },
-      // });
       const response = await axios.post(
         `${BASE_API_URL}/grade-management/search`,
         {
@@ -90,7 +102,7 @@ const Grade = ({ id }: Props) => {
       );
       const res = response?.data?.data?.dataSource;
       console.log(res);
-      setStudents(res);
+      // setStudents(res);
     } catch (error) {
       console.error(error);
     }
@@ -98,124 +110,20 @@ const Grade = ({ id }: Props) => {
 
   useEffect(() => {
     fetchData();
+    fetchListTrainee();
+    fetchListSubject();
   }, []);
 
-  console.log(students);
+  console.log(listTrainee);
+  console.log(listSubject);
 
   // Handle subject change
   const handleSubjectChange = (value: string) => {
     setSelectedSubject(value);
-    // Here you would typically fetch new data based on the selected subject
-    console.log(`Loading data for subject: ${value}`);
-  };
-
-  // Handle template download
-  const handleDownloadTemplate = () => {
-    // Create CSV template
-    const headers = [
-      "ID",
-      "Trainee Name",
-      "Email",
-      "Assignment Average",
-      "Final Average",
-    ];
-    const csvContent = [
-      headers.join(","),
-      ...students.map((student) =>
-        [
-          student.id,
-          student.name,
-          student.email,
-          student.assignmentAverage || "",
-          student.finalAverage || "",
-        ].join(",")
-      ),
-    ].join("\n");
-
-    // Create and trigger download
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `grade_template_${selectedSubject}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  };
-
-  // Handle import
-  const handleImport = () => {
-    // Create file input
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".csv";
-
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const csvData = event.target?.result as string;
-          // Parse CSV and update students
-          const lines = csvData.split("\n").slice(1); // Skip header
-          const newStudents = lines.map((line, index) => {
-            const [id, name, email, assignmentAverage, finalAverage] =
-              line.split(",");
-            return {
-              id: parseInt(id),
-              name,
-              email,
-              assignmentAverage: assignmentAverage
-                ? parseFloat(assignmentAverage)
-                : null,
-              finalAverage: finalAverage ? parseFloat(finalAverage) : null,
-            };
-          });
-          setStudents(newStudents);
-        };
-        reader.readAsText(file);
-      }
-    };
-
-    input.click();
-  };
-
-  // Handle export
-  const handleExport = () => {
-    // Create CSV content with current data
-    const headers = [
-      "ID",
-      "Trainee Name",
-      "Email",
-      "Assignment Average",
-      "Final Average",
-      "Total",
-    ];
-    const csvContent = [
-      headers.join(","),
-      ...students.map((student) =>
-        [
-          student.id,
-          student.name,
-          student.email,
-          student.assignmentAverage || "",
-          student.finalAverage || "",
-          calculateTotal(student.assignmentAverage, student.finalAverage),
-        ].join(",")
-      ),
-    ].join("\n");
-
-    // Create and trigger download
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `grade_export_${selectedSubject}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    const schemes = listSubject?.find(
+      (subject: any) => subject.subjectId === value
+    )?.schemes;
+    setListSchemes(schemes);
   };
 
   const calculateTotal = (assignment: number | null, final: number | null) => {
@@ -234,14 +142,16 @@ const Grade = ({ id }: Props) => {
               <SelectValue placeholder="Select subject" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="java">Java</SelectItem>
-              <SelectItem value="sql">SQL</SelectItem>
-              <SelectItem value="python">Python</SelectItem>
+              {listSubject?.map((subject: any) => (
+                <SelectItem key={subject.subjectId} value={subject.subjectId}>
+                  {subject.subjectName}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex gap-4">
+        {/* <div className="flex gap-4">
           <button
             onClick={handleDownloadTemplate}
             className="bg-[#6FBC44] text-white px-6 py-2 rounded-md hover:bg-[#5da639] transition duration-200"
@@ -260,7 +170,7 @@ const Grade = ({ id }: Props) => {
           >
             Export
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div className="bg-white rounded-lg shadow-lg">
@@ -276,35 +186,56 @@ const Grade = ({ id }: Props) => {
               <th className="py-4 px-6 text-left border-r border-[#5da639]">
                 Email
               </th>
-              <th className="py-4 px-6 text-center border-r border-[#5da639]">
+              {/* <th className="py-4 px-6 text-center border-r border-[#5da639]">
                 Assignment Average
                 <div className="text-sm font-normal">50%</div>
               </th>
               <th className="py-4 px-6 text-center border-r border-[#5da639]">
                 Final Average
                 <div className="text-sm font-normal">50%</div>
-              </th>
+              </th> */}
+              {listSchemes?.map((scheme: any) => (
+                <th
+                  key={scheme.markSchemeId}
+                  className="py-4 px-6 text-center border-r border-[#5da639]"
+                >
+                  {scheme.markName}
+                  <div className="text-sm font-normal">
+                    {scheme.markWeight}%
+                  </div>
+                </th>
+              ))}
               <th className="py-4 px-6 text-center">Total</th>
             </tr>
           </thead>
           <tbody>
-            {students?.map((student: any) => (
-              <tr key={student.id} className="border-b hover:bg-gray-50">
+            {listTrainee?.map((student: any, index) => (
+              <tr key={student.userId} className="border-b hover:bg-gray-50">
                 <td className="py-4 px-6 border-r border-gray-200">
-                  {student.id}
+                  {index + 1}
                 </td>
                 <td className="py-4 px-6 border-r border-gray-200">
-                  {student.name}
+                  {student.account}
                 </td>
                 <td className="py-4 px-6 border-r border-gray-200">
                   {student.email}
                 </td>
-                <td className="py-4 px-6 text-center border-r border-gray-200">
+                {/* <td className="py-4 px-6 text-center border-r border-gray-200">
                   {student.assignmentAverage || ""}
                 </td>
                 <td className="py-4 px-6 text-center border-r border-gray-200">
                   {student.finalAverage || ""}
-                </td>
+                </td> */}
+                {listSchemes?.map((scheme: any) => (
+                  <td
+                    key={scheme.markSchemeId}
+                    className="py-4 px-6 text-center border-r border-gray-200"
+                  >
+                    {student.grades?.find(
+                      (grade: any) => grade.schemeId === scheme.schemeId
+                    )?.grade || ""}
+                  </td>
+                ))}
                 <td className="py-4 px-6 text-center">
                   {calculateTotal(
                     student.assignmentAverage,
