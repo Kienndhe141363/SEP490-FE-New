@@ -16,7 +16,6 @@ const page: React.FC = () => {
   const listTabs = ["Class Info", "Trainee", "Attendance", "Grade", "Session"];
 
   const { id } = useParams();
-  const role = useRole();
 
   const [data, setData] = useState<any>(null);
 

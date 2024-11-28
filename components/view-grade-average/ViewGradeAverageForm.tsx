@@ -359,7 +359,7 @@ const GradeAverageForm = ({ id }: Props) => {
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
+                {students?.map((student) => (
                   <tr key={student.id} className="border-b hover:bg-gray-50">
                     <td className="py-4 px-6 border-r border-gray-200">
                       {student.id}

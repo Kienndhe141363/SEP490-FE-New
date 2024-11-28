@@ -79,7 +79,7 @@ const ClassInfo = ({ id, data }: Props) => {
         <input
           type="text"
           className="w-full h-10 px-3"
-          // value={data?.admin}
+          value={data?.curriculumName}
           readOnly
         />
       </div>

@@ -40,6 +40,14 @@ interface LessonFormProps {
   subjectId: number;
 }
 
+export const formatDateRange = (startDate: string, endDate: string) => {
+  // 07:30 - 09:00 28/11/2024
+  return `${formatDate(new Date(startDate), "HH:mm")} - ${formatDate(
+    new Date(endDate),
+    "HH:mm dd/MM/yyyy"
+  )}`;
+}
+
 const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -179,9 +187,9 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
                 lesson: session.lesson,
                 sessionOrder: session.sessionOrder,
                 description: session.description,
-                date: "2024-11-24T16:24:17.544Z",
-                startDate: "2024-11-24T16:24:17.544Z",
-                endDate: "2024-11-24T16:24:17.544Z",
+                date: session.date ? new Date(session.date) : null,
+                startDate: session.startDate ? new Date(session.startDate) : null,
+                endDate: session.endDate ? new Date(session.endDate) : null,
               })),
             })),
           }),
@@ -198,16 +206,57 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
     }
   };
 
-  console.log(data);
-  console.log(subjects);
+  const fetchTimeTableSubject = async (sessionsList: any, slot:any) => {
+    try {
+      const response = await fetch(`${BASE_API_URL}/class-management/get-time-table-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          startDate: new Date(data.startDate),
+          slot,
+          sessions: sessionsList.map((s: any) => ({
+            ...s,
+            startDate: new Date(s.startDate),
+          })),
+        }),
+      });
+      const res = await response.json();
+      console.log("res", res);
+      if (res.code === "Success") {
+        return res.data;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const fetchTimeTableSubjects = async () => {
+    try {
+      // tôi muốn từ list subject lấy ra list session của từng subject và gán vào subjects
+      const newSubjects = await Promise.all(
+        data?.subjectList?.map(async (subject: any) => {
+          const sessionsList = await fetchTimeTableSubject(subject.sessionsList, subject.slot);
+          return {
+            ...subject,
+            sessionsList,
+            isExpanded: true,
+          };
+        })
+      );
+      setSubjects(newSubjects);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   useEffect(() => {
-    setSubjects(
-      data.subjectList.map((subject: any, index: number) => ({
-        ...subject,
-        isExpanded: index === 0,
-      }))
-    );
+    fetchTimeTableSubjects();
   }, []);
+
+  console.log("subjects", subjects);
+  console.log("data", data);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -312,7 +361,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
 
                 {subject?.isExpanded && (
                   <>
-                    {subject?.sessionsList.map((lesson: any, index: number) => (
+                    {subject?.sessionsList?.map((lesson: any, index: number) => (
                       <div key={index} className="grid grid-cols-5 border-t">
                         <div className="p-4 border-r">{index + 1}</div>
                         <div className="p-4 border-r">{lesson.lesson}</div>
@@ -320,10 +369,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
                           {lesson.sessionOrder}
                         </div>
                         <div className="p-4 border-r">
-                          {formatDate(
-                            new Date(subject.createdDate),
-                            "dd/MM/yyyy"
-                          )}
+                          {lesson.date ? formatDateRange(lesson.date ,lesson.endDate) : "--"}
                         </div>
                         <div className="p-4">{lesson.description}</div>
                       </div>
