@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -9,6 +9,67 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getJwtToken } from "@/lib/utils";
+import { BASE_API_URL } from "@/config/constant";
+
+const dateTime = {
+  January: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  ],
+  February: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29,
+  ],
+  March: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  ],
+  April: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30,
+  ],
+  May: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  ],
+  June: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30,
+  ],
+  July: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  ],
+  August: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  ],
+  September: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30,
+  ],
+  October: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  ],
+  November: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30,
+  ],
+  December: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  ],
+};
+
+const attendanceStatus = {
+  P: "Present",
+  A: "Absent",
+  L: "Late",
+  An: "Absent with notice",
+  Ln: "Late with notice",
+};
 
 const getAttendanceColor = (status: string) => {
   switch (status) {
@@ -33,61 +94,72 @@ type Props = {
 };
 
 const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
-  const [attendanceStatus, setAttendanceStatus] = useState<
-    Record<string, "P" | "A" | "L" | "An" | "Ln" | "-">
-  >({});
-  const [selectedMonth, setSelectedMonth] = useState("November");
-  const [dates, setDates] = useState<string[]>([]);
-  const [subject, setSubject] = useState("SQL");
-  const [activeTab, setActiveTab] = useState("Attendance");
+  const currentMonth = new Date().getMonth();
+  const [selectedMonth, setSelectedMonth] = useState<keyof typeof dateTime>(
+    Object.keys(dateTime)[currentMonth] as keyof typeof dateTime
+  );
+  const [listSubject, setListSubject] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [listAttendance, setListAttendance] = useState([]);
 
-  const handleAttendanceChange = (
-    studentId: number,
-    date: string,
-    status: "P" | "A" | "L" | "An" | "Ln" | "-"
-  ) => {
-    const key = `${studentId}-${date}`;
-    setAttendanceStatus((prevStatus) => ({
-      ...prevStatus,
-      [key]: status,
-    }));
+  const fetchListSubject = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/subject/get-subject-in-class/${id}`,
+        {
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      if (res?.data) {
+        setListSubject(res?.data);
+        setSelectedSubject(res?.data[0]?.subjectId);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const getAttendanceStatus = (studentId: number, date: string) => {
-    const key = `${studentId}-${date}`;
-    return attendanceStatus[key] || "-";
+  const fetchListAttendance = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/attendance-management/search-by-class?classId=${id}&subjectId=${selectedSubject}`,
+        {
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      if (res?.data) {
+        console.log(res?.data);
+        setListAttendance(res?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  console.log(listAttendance);
 
-  const getDaysInMonth = (month: string): number => {
-    const monthIndex = months.indexOf(month);
-    return new Date(2024, monthIndex + 1, 0).getDate();
+  const handleChangeMonth = (month: keyof typeof dateTime) => {
+    setSelectedMonth(month);
   };
+
+  const handleSubjectChange = (subjectId: string) => {
+    setSelectedSubject(subjectId);
+  };
+
+  const months = Object.keys(dateTime);
+  const listDateOfMonth = dateTime[selectedMonth];
+  const attendanceStatusKeys = Object.keys(attendanceStatus);
 
   useEffect(() => {
-    const daysInMonth = getDaysInMonth(selectedMonth);
-    const newDates = Array.from(
-      { length: daysInMonth },
-      (_, i) => `${i + 1}/${months.indexOf(selectedMonth) + 1}`
-    );
-    setDates(newDates);
-  }, [selectedMonth]);
+    fetchListSubject();
+  }, []);
 
-  console.log("listTrainee", listTrainee);
+  useEffect(() => {
+    if (!selectedSubject) return;
+    fetchListAttendance();
+  }, [selectedSubject]);
 
   return (
     <div>
@@ -96,7 +168,7 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
           <div className="flex items-center gap-6 mb-6">
             <div className="flex items-center gap-4">
               <span className="font-medium">MileStone:</span>
-              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <Select value={selectedMonth} onValueChange={handleChangeMonth}>
                 <SelectTrigger className="w-[120px]">
                   <SelectValue>{selectedMonth}</SelectValue>
                 </SelectTrigger>
@@ -112,12 +184,22 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
 
             <div className="flex items-center gap-4">
               <span className="font-medium">Subject:</span>
-              <Select value={subject} onValueChange={setSubject}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue>{subject}</SelectValue>
+              <Select
+                value={selectedSubject}
+                onValueChange={handleSubjectChange}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="SQL">SQL</SelectItem>
+                  {listSubject?.map((subject: any) => (
+                    <SelectItem
+                      key={subject.subjectId}
+                      value={subject.subjectId}
+                    >
+                      {subject.subjectName}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -136,10 +218,10 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
                   >
                     Name
                   </th>
-                  {dates.map((date) => (
+                  {listDateOfMonth.map((date: any) => (
                     <th
                       key={date}
-                      className="p-3 text-center bg-green-500 text-white border border-green-600 min-w-[120px]"
+                      className="p-3 text-center bg-green-500 text-white border border-green-600 min-w-3"
                     >
                       {date}
                     </th>
@@ -153,35 +235,29 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
                     <td className="p-3 border" style={{ whiteSpace: "nowrap" }}>
                       {trainee.fullName}
                     </td>
-                    {dates.map((date) => {
-                      const status = getAttendanceStatus(trainee.id, date);
-                      return (
-                        <td
-                          key={`${trainee.id}-${date}`}
-                          className="p-3 text-center border"
+                    {listDateOfMonth.map((date: any) => (
+                      <td
+                        key={`${trainee.userId}-${date}`}
+                        className="p-3 text-center border min-w-3"
+                      >
+                        <select
+                          className={`bg-transparent cursor-pointer outline-none min-w-3 text-center font-medium
+                                    ${getAttendanceColor("")}`}
+                          value=""
+                          onChange={(e) => console.log(e.target.value)}
                         >
-                          <select
-                            className={`bg-transparent cursor-pointer outline-none w-full text-center font-medium
-                                ${getAttendanceColor(status)}`}
-                            value={status}
-                            onChange={(e) =>
-                              handleAttendanceChange(
-                                trainee.id,
-                                date,
-                                e.target.value as any
-                              )
-                            }
-                          >
-                            <option value="-">-</option>
-                            <option value="P">P</option>
-                            <option value="A">A</option>
-                            <option value="L">L</option>
-                            <option value="An">An</option>
-                            <option value="Ln">Ln</option>
-                          </select>
-                        </td>
-                      );
-                    })}
+                          <option value="">-</option>
+                          {attendanceStatusKeys.map((status, index) => (
+                            <option
+                              key={status}
+                              value={attendanceStatusKeys[index]}
+                            >
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
