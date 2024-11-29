@@ -10,6 +10,7 @@ import Trainee from "./Trainee";
 import Session from "./Session";
 import useRole from "@/hooks/useRole";
 import Grade from "./Grade";
+import TakeAttendanceForm from "./Attendance";
 
 const page: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Class Info");
@@ -18,6 +19,23 @@ const page: React.FC = () => {
   const { id } = useParams();
 
   const [data, setData] = useState<any>(null);
+
+  const [listTrainee, setListTrainee] = useState([]);
+
+  const fetchListTrainee = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/class-management/get-trainee-in-class/${id}`,
+        {
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      setListTrainee(res?.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -36,6 +54,7 @@ const page: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    fetchListTrainee();
   }, []);
 
   const renderTabContent = () => {
@@ -43,9 +62,15 @@ const page: React.FC = () => {
       case "Class Info":
         return <ClassInfo id={id} data={data} />;
       case "Trainee":
-        return <Trainee id={id} />;
+        return (
+          <Trainee
+            id={id}
+            listTrainee={listTrainee}
+            fetchListTrainee={fetchListTrainee}
+          />
+        );
       case "Attendance":
-        return <div>attendance</div>;
+        return <TakeAttendanceForm id={id} listTrainee={listTrainee} />;
       case "Grade":
         return <Grade id={id} />;
       case "Session":
