@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { getJwtToken } from "@/lib/utils";
 import { BASE_API_URL } from "@/config/constant";
+import axios from "axios";
 
 const dateTime = {
   January: [
@@ -122,16 +123,21 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
 
   const fetchListAttendance = async () => {
     try {
-      const response = await fetch(
+      const res = await axios.post(
         `${BASE_API_URL}/attendance-management/search-by-class?classId=${id}&subjectId=${selectedSubject}`,
         {
-          headers: { Authorization: `Bearer ${getJwtToken()}` },
+          // classId: id, // ID lớp học
+          // subjectId: selectedSubject, // ID môn học
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${getJwtToken()}`,
+          },
         }
       );
-      const res = await response.json();
       if (res?.data) {
-        console.log(res?.data);
-        setListAttendance(res?.data);
+        console.log(res?.data?.data?.listAttendances);
+        setListAttendance(res?.data?.data?.listAttendances);
       }
     } catch (error) {
       console.error(error);
