@@ -135,7 +135,7 @@ const ViewClassListForm: React.FC = () => {
   const handleAcceptClass = async (classId: number) => {
     try {
       const res = await axios.post(
-        `${BASE_API_URL}/class-management/accep-class/${classId}`
+        `${BASE_API_URL}/class-management/accep-class?classId=${classId}`
       );
       if (res.status === 200) {
         toast.success("Accept class successfully");

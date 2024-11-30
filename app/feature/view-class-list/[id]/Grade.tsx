@@ -220,12 +220,6 @@ const Grade = ({ id }: Props) => {
                 <td className="py-4 px-6 border-r border-gray-200">
                   {student.email}
                 </td>
-                {/* <td className="py-4 px-6 text-center border-r border-gray-200">
-                  {student.assignmentAverage || ""}
-                </td>
-                <td className="py-4 px-6 text-center border-r border-gray-200">
-                  {student.finalAverage || ""}
-                </td> */}
                 {listSchemes?.map((scheme: any) => (
                   <td
                     key={scheme.markSchemeId}

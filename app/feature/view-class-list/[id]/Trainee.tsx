@@ -5,26 +5,11 @@ import React, { useEffect, useState } from "react";
 
 type Props = {
   id: any;
+  listTrainee: any[];
+  fetchListTrainee: () => void;
 };
 
-const Trainee = ({ id }: Props) => {
-  const [listTrainee, setListTrainee] = useState([]);
-
-  const fetchListTrainee = async () => {
-    try {
-      const response = await fetch(
-        `${BASE_API_URL}/class-management/get-trainee-in-class/${id}`,
-        {
-          headers: { Authorization: `Bearer ${getJwtToken()}` },
-        }
-      );
-      const res = await response.json();
-      setListTrainee(res?.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+const Trainee = ({ id, listTrainee, fetchListTrainee }: Props) => {
   const handleDownloadTemplate = async () => {
     try {
       const response = await fetch(`${BASE_API_URL}/trainee/export-template`, {
