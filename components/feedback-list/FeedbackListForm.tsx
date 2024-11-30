@@ -1,6 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Home, Users, BookOpen, Settings, LogOut, UserSquare2, GraduationCap, ChevronDown } from "lucide-react";
+import {
+  Home,
+  Users,
+  BookOpen,
+  Settings,
+  LogOut,
+  UserSquare2,
+  GraduationCap,
+  ChevronDown,
+} from "lucide-react";
 import { FiEdit } from "react-icons/fi";
 import axios from "axios";
 import { BASE_API_URL } from "@/config/constant";
@@ -32,7 +41,6 @@ interface Subject {
 }
 
 const FeedbackListForm: React.FC = () => {
-
   // States
   const [feedbacks, setFeedbacks] = useState<FeedbackData[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -44,7 +52,9 @@ const FeedbackListForm: React.FC = () => {
   const [selectedRate, setSelectedRate] = useState<number | null>(null);
   const [orderBy, setOrderBy] = useState<string>("");
   const [showNotRated, setShowNotRated] = useState(false);
-  const [subjects, setSubjects] = useState<Subject[]>([{ subjectId: "All", subjectCode: "All" }]);
+  const [subjects, setSubjects] = useState<Subject[]>([
+    { subjectId: "All", subjectCode: "All" },
+  ]);
   const [trainers, setTrainers] = useState<User[]>([]);
   const [selectedTrainer, setSelectedTrainer] = useState<string>("All");
   const trainerDropdownRef = React.useRef<HTMLDivElement>(null);
@@ -72,14 +82,19 @@ const FeedbackListForm: React.FC = () => {
       }
 
       try {
-        const response = await axios.get(`${BASE_API_URL}/user/management/list`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: { role: "ROLE_TRAINER" },
-        });
+        const response = await axios.get(
+          `${BASE_API_URL}/user/management/list`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: { role: "ROLE_TRAINER" },
+          }
+        );
 
-        const trainerData = response?.data?.users.filter((user: User) => user.status);
+        const trainerData = response?.data?.users.filter(
+          (user: User) => user.status
+        );
         if (Array.isArray(trainerData)) {
           setTrainers(trainerData);
         } else {
@@ -104,17 +119,22 @@ const FeedbackListForm: React.FC = () => {
           return;
         }
 
-        const response = await axios.post(`${BASE_API_URL}/feedback-management/search`, {
-          page,
-          pageSize: 10,
-          userId: selectedTrainer !== "All" ? selectedTrainer : undefined,
-          subjectId: selectedSubjectId !== "All" ? selectedSubjectId : undefined,
-          rate: selectedRate !== null ? selectedRate : undefined,
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await axios.post(
+          `${BASE_API_URL}/feedback-management/search`,
+          {
+            page,
+            pageSize: 10,
+            userId: selectedTrainer !== "All" ? selectedTrainer : undefined,
+            subjectId:
+              selectedSubjectId !== "All" ? selectedSubjectId : undefined,
+            rate: selectedRate !== null ? selectedRate : undefined,
           },
-        });
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         const feedbackData = response.data.data.dataSource;
         setFeedbacks(feedbackData);
@@ -125,7 +145,14 @@ const FeedbackListForm: React.FC = () => {
     };
 
     fetchFeedbacks(currentPage);
-  }, [currentPage, selectedTrainer, selectedSubjectId, selectedRate, showNotRated, orderBy]);
+  }, [
+    currentPage,
+    selectedTrainer,
+    selectedSubjectId,
+    selectedRate,
+    showNotRated,
+    orderBy,
+  ]);
 
   // Fetch subjects for the dropdown
   useEffect(() => {
@@ -137,23 +164,32 @@ const FeedbackListForm: React.FC = () => {
           return;
         }
 
-        const response = await axios.post(`${BASE_API_URL}/subject/search`, {
-          keyword: '',
-          page: 0,
-          size: 100, // Adjust size as needed
-          orderBy: 'id',
-          sortDirection: 'asc'
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await axios.post(
+          `${BASE_API_URL}/subject/search`,
+          {
+            keyword: "",
+            page: 0,
+            size: 100, // Adjust size as needed
+            orderBy: "id",
+            sortDirection: "asc",
           },
-        });
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        const fetchedSubjects = response.data.data.dataSource.map((subject: any) => ({
-          subjectId: subject.subjectId,
-          subjectCode: subject.subjectCode
-        }));
-        setSubjects([{ subjectId: "All", subjectCode: "All" }, ...fetchedSubjects]); // Add "All" option
+        const fetchedSubjects = response.data.data.dataSource.map(
+          (subject: any) => ({
+            subjectId: subject.subjectId,
+            subjectCode: subject.subjectCode,
+          })
+        );
+        setSubjects([
+          { subjectId: "All", subjectCode: "All" },
+          ...fetchedSubjects,
+        ]); // Add "All" option
       } catch (error) {
         console.error("Error fetching subjects:", error);
       }
@@ -220,7 +256,7 @@ const FeedbackListForm: React.FC = () => {
   return (
     <div className="flex-1 ml-[228px] bg-[#EFF5EB] p-24 relative min-h-screen">
       <h2 className="text-6xl font-bold mb-8">Feedback Management</h2>
-      
+
       {/* Search and Filters */}
       <div className="mb-8">
         <div className="flex gap-4 mb-4">
@@ -240,28 +276,35 @@ const FeedbackListForm: React.FC = () => {
             <div className="flex gap-2">
               {/* Trainer Dropdown */}
               <div className="relative" ref={trainerDropdownRef}>
-                <button 
+                <button
                   onClick={() => setShowTrainerDropdown(!showTrainerDropdown)}
                   className={`bg-[#6FBC44] text-white px-4 py-1 rounded flex items-center gap-2 ${
-                    selectedTrainer ? 'bg-[#5da639]' : ''
+                    selectedTrainer ? "bg-[#5da639]" : ""
                   }`}
                 >
-                  {selectedTrainer === "All" ? "All" : trainers.find(trainer => trainer.userId.toString() === selectedTrainer)?.fullName || "Trainer"}
+                  {selectedTrainer === "All"
+                    ? "All"
+                    : trainers.find(
+                        (trainer) =>
+                          trainer.userId.toString() === selectedTrainer
+                      )?.fullName || "Trainer"}
                   <ChevronDown size={16} />
                 </button>
                 {showTrainerDropdown && (
                   <div className="absolute top-full mt-1 bg-white border rounded shadow-lg z-10 max-w-xs max-h-48 overflow-y-auto">
-                    <div 
+                    <div
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                       onClick={() => handleTrainerSelect("All")}
                     >
                       All
                     </div>
                     {trainers.map((trainer) => (
-                      <div 
+                      <div
                         key={trainer.userId}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleTrainerSelect(trainer.userId.toString())}
+                        onClick={() =>
+                          handleTrainerSelect(trainer.userId.toString())
+                        }
                       >
                         {trainer.fullName}
                       </div>
@@ -272,21 +315,23 @@ const FeedbackListForm: React.FC = () => {
 
               {/* Subject Dropdown */}
               <div className="relative" ref={subjectDropdownRef}>
-                <button 
+                <button
                   onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
                   className={`bg-[#6FBC44] text-white px-4 py-1 rounded flex items-center gap-2 ${
-                    selectedSubjectId ? 'bg-[#5da639]' : ''
+                    selectedSubjectId ? "bg-[#5da639]" : ""
                   }`}
                 >
-                  {selectedSubjectId === "All" 
-                    ? "All" 
-                    : subjects.find(subject => subject.subjectId === selectedSubjectId)?.subjectCode || "Subject"}
+                  {selectedSubjectId === "All"
+                    ? "All"
+                    : subjects.find(
+                        (subject) => subject.subjectId === selectedSubjectId
+                      )?.subjectCode || "Subject"}
                   <ChevronDown size={16} />
                 </button>
                 {showSubjectDropdown && (
                   <div className="absolute top-full mt-1 bg-white border rounded shadow-lg z-10 max-w-xs max-h-48 overflow-y-auto">
                     {subjects.map((subject) => (
-                      <div 
+                      <div
                         key={subject.subjectId}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         onClick={() => handleSubjectSelect(subject.subjectId)}
@@ -300,10 +345,10 @@ const FeedbackListForm: React.FC = () => {
 
               {/* Rate Dropdown */}
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowRateDropdown(!showRateDropdown)}
                   className={`bg-[#6FBC44] text-white px-4 py-1 rounded flex items-center gap-2 ${
-                    selectedRate !== null ? 'bg-[#5da639]' : ''
+                    selectedRate !== null ? "bg-[#5da639]" : ""
                   }`}
                   disabled={showNotRated}
                 >
@@ -313,7 +358,7 @@ const FeedbackListForm: React.FC = () => {
                 {showRateDropdown && (
                   <div className="absolute top-full mt-1 bg-white border rounded shadow-lg z-10">
                     {rates.map((rate) => (
-                      <div 
+                      <div
                         key={rate.label}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         onClick={() => handleRateSelect(rate.value)}
@@ -325,9 +370,9 @@ const FeedbackListForm: React.FC = () => {
                 )}
               </div>
 
-              <button 
+              <button
                 className={`bg-[#6FBC44] text-white px-4 py-1 rounded ${
-                  showNotRated ? 'bg-[#5da639]' : ''
+                  showNotRated ? "bg-[#5da639]" : ""
                 }`}
                 onClick={handleNotRatedToggle}
               >
@@ -339,27 +384,27 @@ const FeedbackListForm: React.FC = () => {
           <div>
             <p className="font-semibold mb-2">Order by:</p>
             <div className="flex gap-2">
-              <button 
+              <button
                 className={`bg-[#6FBC44] text-white px-4 py-1 rounded ${
-                  orderBy === 'latest' ? 'bg-[#5da639]' : ''
+                  orderBy === "latest" ? "bg-[#5da639]" : ""
                 }`}
-                onClick={() => setOrderBy('latest')}
+                onClick={() => setOrderBy("latest")}
               >
                 Latest
               </button>
-              <button 
+              <button
                 className={`bg-[#6FBC44] text-white px-4 py-1 rounded ${
-                  orderBy === 'high' ? 'bg-[#5da639]' : ''
+                  orderBy === "high" ? "bg-[#5da639]" : ""
                 }`}
-                onClick={() => setOrderBy('high')}
+                onClick={() => setOrderBy("high")}
               >
                 High
               </button>
-              <button 
+              <button
                 className={`bg-[#6FBC44] text-white px-4 py-1 rounded ${
-                  orderBy === 'low' ? 'bg-[#5da639]' : ''
+                  orderBy === "low" ? "bg-[#5da639]" : ""
                 }`}
-                onClick={() => setOrderBy('low')}
+                onClick={() => setOrderBy("low")}
               >
                 Low
               </button>
@@ -388,13 +433,22 @@ const FeedbackListForm: React.FC = () => {
               <td className="px-6 py-3">{feedback.traineeName}</td>
               <td className="px-6 py-3">{feedback.subjectCode}</td>
               <td className="px-6 py-3 text-center">{feedback.avgRating} ⭐</td>
-              <td className="px-6 py-3 text-center">{new Date(feedback.openDate).toLocaleDateString()}</td>
-              <td className="px-6 py-3 text-center">{new Date(feedback.lastUpdate).toLocaleDateString()}</td>
+              <td className="px-6 py-3 text-center">
+                {new Date(feedback.openDate).toLocaleDateString()}
+              </td>
+              <td className="px-6 py-3 text-center">
+                {new Date(feedback.lastUpdate).toLocaleDateString()}
+              </td>
               <td className="border px-6 py-3 justify-center-center">
-                <div className="flex justify-center">
-                  <Link href={`#`}>
-                    <FiEdit className="w-6 h-6 text-green-600 hover:text-green-800" />
-                  </Link>
+                <div
+                  className="flex justify-center"
+                  onClick={() =>
+                    router.push(`/feature/feedback-list/${feedback.feedbackId}`)
+                  }
+                >
+                  {/* <Link href={``}> */}
+                  <FiEdit className="w-6 h-6 text-green-600 hover:text-green-800" />
+                  {/* </Link> */}
                 </div>
               </td>
             </tr>
@@ -416,7 +470,11 @@ const FeedbackListForm: React.FC = () => {
           <button
             key={index}
             onClick={() => handlePageChange(index)}
-            className={`px-3 py-2 rounded ${currentPage === index ? "bg-[#6FBC44] text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+            className={`px-3 py-2 rounded ${
+              currentPage === index
+                ? "bg-[#6FBC44] text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
           >
             {index + 1}
           </button>

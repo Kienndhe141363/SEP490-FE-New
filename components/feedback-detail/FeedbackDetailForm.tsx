@@ -1,6 +1,17 @@
 "use client";
-import React from "react";
-import { Home, Users, BookOpen, Settings, LogOut, UserCircle, BookCheck } from "lucide-react";
+import React, { useEffect } from "react";
+import {
+  Home,
+  Users,
+  BookOpen,
+  Settings,
+  LogOut,
+  UserCircle,
+  BookCheck,
+} from "lucide-react";
+import { BASE_API_URL } from "@/config/constant";
+import axios from "axios";
+import { getJwtToken } from "@/lib/utils";
 
 interface FeedbackDetailData {
   class: string;
@@ -15,7 +26,63 @@ interface FeedbackDetailData {
   description: string;
 }
 
-const FeedbackDetailForm: React.FC = () => {
+type Props = {
+  id: any;
+};
+
+const listQuestion = [
+  {
+    id: 1,
+    question: "How would you rate the curriculum quality?",
+  },
+  {
+    id: 2,
+    question: "Would you recommend the course to others?",
+  },
+  {
+    id: 3,
+    question: "Does the trainer come to class on time?",
+  },
+  {
+    id: 4,
+    question: "Are you satisfied with the curriculum?",
+  },
+  {
+    id: 5,
+    question: "Does the trainer teach the full lesson?",
+  },
+];
+
+const FeedbackDetailForm = ({ id }: Props) => {
+  console.log("id", id);
+
+  const [data, setData] = React.useState<any>({});
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.post(
+        `${BASE_API_URL}/feedback-management/detail`,
+        {
+          feedBackId: id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${getJwtToken()}`,
+          },
+        }
+      );
+      setData(response?.data?.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  console.log("data", data);
+
   // Sample data - in a real app, this would come from an API
   const feedbackDetail: FeedbackDetailData = {
     class: "Java01",
@@ -27,7 +94,7 @@ const FeedbackDetailForm: React.FC = () => {
     satisfiedCurriculum: true,
     trainerTeachFull: true,
     trainerOnTime: true,
-    description: ""
+    description: "",
   };
 
   const renderStar = (position: number) => {
@@ -45,6 +112,16 @@ const FeedbackDetailForm: React.FC = () => {
     );
   };
 
+  console.log("data", data);
+  const getAnswer = (questionId: number) => {
+    console.log("questionAnswerForm", data?.questionAnswerForm);
+    const question = data?.questionAnswerForm?.find(
+      (item: any) => item?.questions?.questionId === questionId
+    );
+    console.log("question", question);
+    return question?.answer === "false";
+  };
+
   return (
     <div className="flex min-h-screen max-h-screen overflow-hidden bg-[#EFF5EB]">
       {/* Sidebar */}
@@ -60,31 +137,52 @@ const FeedbackDetailForm: React.FC = () => {
         </div>
 
         <nav className="text-white">
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da639]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da639]"
+          >
             <Home className="w-5 h-5 mr-3" />
             <span className="font-bold">Home</span>
           </a>
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da639]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da639]"
+          >
             <Users className="w-5 h-5 mr-3" />
             <span className="font-bold">User Management</span>
           </a>
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da639]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da639]"
+          >
             <BookOpen className="w-5 h-5 mr-3" />
             <span className="font-bold">Curriculum Management</span>
           </a>
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da639]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da639]"
+          >
             <BookCheck className="w-5 h-5 mr-3" />
             <span className="font-bold">Class Management</span>
           </a>
-          <a href="#" className="flex items-center px-6 py-3 mt-40 hover:bg-[#5da639]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 mt-40 hover:bg-[#5da639]"
+          >
             <Settings className="w-5 h-5 mr-3" />
             <span className="font-bold">Setting</span>
           </a>
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da639]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da639]"
+          >
             <UserCircle className="w-5 h-5 mr-3" />
             <span className="font-bold">My Account</span>
           </a>
-          <a href="#" className="flex items-center px-6 py-3 hover:bg-[#5da639]">
+          <a
+            href="#"
+            className="flex items-center px-6 py-3 hover:bg-[#5da639]"
+          >
             <LogOut className="w-5 h-5 mr-3" />
             <span className="font-bold">Sign out</span>
           </a>
@@ -103,38 +201,44 @@ const FeedbackDetailForm: React.FC = () => {
           <div className="bg-white rounded-lg shadow-lg p-6">
             {/* Feedback Detail Section */}
             <h3 className="text-2xl font-bold mb-6">Feedback Detail</h3>
-            
+
             <div className="grid grid-cols-2 gap-y-4 mb-8">
               <div className="flex gap-2">
-                <span className="font-bold">Class:</span>
-                <span>{feedbackDetail.class}</span>
+                <span className="font-bold">Trainee Name:</span>
+                <span>{data.traineeName}</span>
               </div>
               <div className="flex gap-2">
-                <span className="font-bold">Trainer:</span>
-                <span>{feedbackDetail.trainer}</span>
+                <span className="font-bold">Trainer Name:</span>
+                <span>{data.trainerName}</span>
               </div>
               <div className="flex gap-2">
                 <span className="font-bold">Subject Name:</span>
-                <span>{feedbackDetail.subjectName}</span>
+                <span>{data.subjectName}</span>
               </div>
               <div className="flex gap-2">
                 <span className="font-bold">Duration:</span>
-                <span>{feedbackDetail.duration}</span>
+                <span>
+                  {data.openDate}-{data.endDate}
+                </span>
               </div>
             </div>
 
             {/* Rating Section */}
-            <div className="mb-6">
-              <p className="mb-2 font-medium">How would you rate the curriculum quality?</p>
+            {/* <div className="mb-6">
+              <p className="mb-2 font-medium">
+                How would you rate the curriculum quality?
+              </p>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((num) => renderStar(num))}
               </div>
-            </div>
+            </div> */}
 
             {/* Questions Grid */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-6">
+            {/* <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-6">
               <div>
-                <p className="mb-2">Would you recommend the course to others?</p>
+                <p className="mb-2">
+                  Would you recommend the course to others?
+                </p>
                 <div className="space-x-4">
                   <label className="inline-flex items-center">
                     <input
@@ -228,13 +332,40 @@ const FeedbackDetailForm: React.FC = () => {
                   </label>
                 </div>
               </div>
+            </div> */}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-6">
+              {listQuestion.map((item) => (
+                <div key={item.id}>
+                  <p className="mb-2">{item.question}</p>
+                  <div className="space-x-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        className="form-radio text-[#6FBC44]"
+                        checked={!getAnswer(item.id)}
+                        readOnly
+                      />
+                      <span className="ml-2">Yes</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        className="form-radio text-[#6FBC44]"
+                        checked={getAnswer(item.id)}
+                        readOnly
+                      />
+                      <span className="ml-2">No</span>
+                    </label>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Description Section */}
             <div>
               <p className="font-bold mb-2">Description</p>
               <div className="w-full min-h-[200px] p-4 border rounded-lg bg-gray-50">
-                {feedbackDetail.description || "No description provided."}
+                {data.description || "No description provided."}
               </div>
             </div>
           </div>
