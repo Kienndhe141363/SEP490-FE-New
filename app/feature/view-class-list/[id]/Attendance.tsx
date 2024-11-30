@@ -95,9 +95,6 @@ type Props = {
 };
 
 const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
-  const currentDate = new Date().getDate();
-  const fakeScheduleDetail = 3;
-
   const currentMonth = new Date().getMonth();
   const [selectedMonth, setSelectedMonth] = useState<keyof typeof dateTime>(
     Object.keys(dateTime)[currentMonth] as keyof typeof dateTime
@@ -151,9 +148,6 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
 
   console.log("listAttendanceUpdate", listAttendanceUpdate);
   console.log("listAttendance", listAttendance);
-  console.log("listTrainee", listTrainee);
-  console.log("listSubject", listSubject);
-  console.log("selectedSubject", selectedSubject);
 
   const handleChangeMonth = (month: keyof typeof dateTime) => {
     setSelectedMonth(month);
@@ -168,7 +162,7 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
       const formatData = listAttendanceUpdate.map((grade: any) => ({
         status: grade.status,
         attendanceNote: "note",
-        scheduleDetailId: fakeScheduleDetail,
+        scheduleDetailId: grade.scheduleDetailId,
         userId: grade.userId,
       }));
 
@@ -196,27 +190,61 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
     setListAttendance([]);
   };
 
-  const findAttendance = (
-    userId: number,
-    scheduleDetailId: number,
-    date: any
-  ) => {
+  const findAttendance = (userId: number, date: any) => {
     const userAttendance = listAttendance.find(
       (attendance: any) => attendance.userId === userId
     );
 
     const attendanceDetail = userAttendance?.litAttendanceStatuses.find(
-      (attendance: any) =>
-        attendance.scheduleDetailId === scheduleDetailId &&
-        attendance.date === date
+      (attendance: any) => {
+        const startDate = new Date(attendance.startDate).getDate();
+        return startDate === date;
+      }
     );
 
-    return attendanceDetail?.status;
+    return (
+      listAttendanceUpdate.find(
+        (attendance: any) =>
+          attendance.userId === userId && attendance.date === date
+      )?.status ||
+      attendanceDetail?.status ||
+      ""
+    );
   };
 
   const months = Object.keys(dateTime);
   const listDateOfMonth = dateTime[selectedMonth];
   const attendanceStatusKeys = Object.keys(attendanceStatus);
+
+  const isDisableAttendance = (userId: number, date: any) => {
+    const userAttendance = listAttendance.find(
+      (attendance: any) => attendance.userId === userId
+    );
+
+    const attendanceDetail = userAttendance?.litAttendanceStatuses.find(
+      (attendance: any) => {
+        const startDate = new Date(attendance.startDate).getDate();
+        return startDate === date;
+      }
+    );
+
+    return !attendanceDetail;
+  };
+
+  const findScheduleDetailId = (userId: number, date: any) => {
+    const userAttendance = listAttendance.find(
+      (attendance: any) => attendance.userId === userId
+    );
+
+    const attendanceDetail = userAttendance?.litAttendanceStatuses.find(
+      (attendance: any) => {
+        const startDate = new Date(attendance.startDate).getDate();
+        return startDate === date;
+      }
+    );
+
+    return attendanceDetail?.scheduleDetailId;
+  };
 
   useEffect(() => {
     fetchListSubject();
@@ -309,13 +337,7 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
                         <select
                           className={`bg-transparent cursor-pointer outline-none min-w-3 text-center font-medium
                                     ${getAttendanceColor("")}`}
-                          value={
-                            listAttendanceUpdate.find(
-                              (item) =>
-                                item.userId === trainee.userId &&
-                                item.date === date
-                            )?.status || ""
-                          }
+                          value={findAttendance(trainee.userId, date) || ""}
                           onChange={(e) => {
                             const value = e.target.value;
 
@@ -329,6 +351,10 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
                                 userId: trainee.userId,
                                 date: date,
                                 status: value,
+                                scheduleDetailId: findScheduleDetailId(
+                                  trainee.userId,
+                                  date
+                                ),
                               };
                               setListAttendanceUpdate([
                                 ...listAttendanceUpdate,
@@ -340,10 +366,15 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
                                   userId: trainee.userId,
                                   date: date,
                                   status: value,
+                                  scheduleDetailId: findScheduleDetailId(
+                                    trainee.userId,
+                                    date
+                                  ),
                                 },
                               ]);
                             }
                           }}
+                          disabled={isDisableAttendance(trainee.userId, date)}
                         >
                           <option value="">-</option>
                           {attendanceStatusKeys.map((status, index) => (
