@@ -336,7 +336,14 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
                       >
                         <select
                           className={`bg-transparent cursor-pointer outline-none min-w-3 text-center font-medium
-                                    ${getAttendanceColor("")}`}
+                                    ${getAttendanceColor("")}
+                                    ${
+                                      isDisableAttendance(
+                                        trainee.userId,
+                                        date
+                                      ) && "!bg-slate-500"
+                                    }
+                                    `}
                           value={findAttendance(trainee.userId, date) || ""}
                           onChange={(e) => {
                             const value = e.target.value;
