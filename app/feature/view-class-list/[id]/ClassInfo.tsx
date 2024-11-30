@@ -32,7 +32,7 @@ const ClassInfo = ({ id, data }: Props) => {
         <input
           type="text"
           className="w-full h-10 px-3"
-          // value={data?.admin}
+          value={data?.locationName}
           readOnly
         />
       </div>
@@ -102,11 +102,11 @@ const ClassInfo = ({ id, data }: Props) => {
         />
       </div>
       <div className="flex items-center">
-        <label className="block text-lg font-medium w-48">Doc:</label>
+        <label className="block text-lg font-medium w-48">Description:</label>
         <input
           type="text"
           className="w-full h-10 px-3"
-          // value={data?.admin}
+          value={data?.descriptions}
           readOnly
         />
       </div>

@@ -77,7 +77,7 @@ const Trainee = ({ id, listTrainee, fetchListTrainee }: Props) => {
       <div className="mb-6 flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Trainee in class</h2>
         <div className="flex gap-4">
-          <button
+          {/* <button
             className="px-4 py-2 text-blue-600 hover:underline"
             onClick={handleDownloadTemplate}
           >
@@ -94,7 +94,7 @@ const Trainee = ({ id, listTrainee, fetchListTrainee }: Props) => {
             className="px-6 py-2 bg-[#6FBC44] text-white rounded cursor-pointer"
           >
             Import
-          </label>
+          </label> */}
           <button
             className="px-4 py-2 bg-[#6FBC44] text-white rounded"
             onClick={handleExport}
