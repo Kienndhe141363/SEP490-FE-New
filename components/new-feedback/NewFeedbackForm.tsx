@@ -1,5 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import { BASE_API_URL } from "@/config/constant";
+import { getJwtToken } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import React, { useEffect, useState } from "react";
 
 interface FeedbackData {
   curriculumRating: number;
@@ -39,36 +48,87 @@ const listQuestion = [
 ];
 
 const NewFeedbackForm = ({ userId, classId }: Props) => {
+  const [listSubject, setListSubject] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const fetchListSubject = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_API_URL}/subject/get-subject-in-class/${classId}`,
+        {
+          headers: { Authorization: `Bearer ${getJwtToken()}` },
+        }
+      );
+      const res = await response.json();
+      if (res?.data) {
+        setListSubject(res?.data);
+        setSelectedSubject(res?.data[0]?.subjectId);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   console.log("userId", userId);
   console.log("classId", classId);
-  const [feedback, setFeedback] = useState<FeedbackData>({
-    curriculumRating: 0,
-    recommendCourse: false,
-    satisfiedCurriculum: false,
-    trainerTeachFull: false,
-    trainerOnTime: false,
-    comments: "",
+  console.log("selectedSubject", selectedSubject);
+  const [feedback, setFeedback] = useState<any>({
+    listAnswer: [
+      {
+        questionId: 1,
+        answer: "true",
+      },
+      {
+        questionId: 2,
+        answer: "true",
+      },
+      {
+        questionId: 3,
+        answer: "true",
+      },
+      {
+        questionId: 4,
+        answer: "true",
+      },
+      {
+        questionId: 5,
+        answer: "true",
+      },
+    ],
+    description: "",
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log("Submitted feedback:", feedback);
+    try {
+      const res = await fetch(`${BASE_API_URL}/feedback-management/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getJwtToken()}`,
+        },
+        body: JSON.stringify({
+          userId,
+          classId,
+          subjectId: selectedSubject,
+          listAnswer: feedback.listAnswer,
+          description: feedback.description,
+          feedbackDate: new Date().toISOString(),
+          openTime: new Date().toISOString(),
+
+          questionId: 1,
+          feedBackId: 1,
+        }),
+      });
+      const data = await res.json();
+      console.log("Feedback response:", data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const renderStar = (position: number) => {
-    return (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill={position <= feedback.curriculumRating ? "#FFD700" : "none"}
-        stroke="#FFD700"
-        className="cursor-pointer"
-        onClick={() => setFeedback({ ...feedback, curriculumRating: position })}
-      >
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-    );
-  };
+  useEffect(() => {
+    fetchListSubject();
+  }, []);
 
   return (
     <div className="flex-1 bg-[#EFF5EB] overflow-auto">
@@ -90,31 +150,48 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
                 <span className="font-bold">Class:</span>
                 <span>Java01</span>
               </div>
-              <div className="flex gap-2">
+              {/* <div className="flex gap-2">
                 <span className="font-bold">Trainer:</span>
                 <span>HuyLT</span>
-              </div>
+              </div> */}
               <div className="flex gap-2">
                 <span className="font-bold">Subject Name:</span>
-                <span>Java</span>
+                <Select
+                  value={selectedSubject}
+                  onValueChange={setSelectedSubject}
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {listSubject?.map((subject: any) => (
+                      <SelectItem
+                        key={subject.subjectId}
+                        value={subject.subjectId}
+                      >
+                        {subject.subjectName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="flex gap-2">
+              {/* <div className="flex gap-2">
                 <span className="font-bold">Duration:</span>
                 <span>12/8/2024-12/12-2024</span>
-              </div>
+              </div> */}
             </div>
           </div>
 
           {/* Rating Section */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <p className="mb-2">How would you rate the curriculum quality?</p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((num) => renderStar(num))}
             </div>
-          </div>
+          </div> */}
 
           {/* Yes/No Questions */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
@@ -247,16 +324,51 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
+          {listQuestion.map((question) => (
+            <div key={question.id} className="mb-6">
+              <p className="mb-2">{question.question}</p>
+              <div className="space-x-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    className="form-radio text-[#6FBC44] w-4 h-4"
+                    checked={
+                      feedback.listAnswer[question.id - 1].answer !== "false"
+                    }
+                    onChange={() => {
+                      feedback.listAnswer[question.id - 1].answer = "true";
+                      setFeedback({ ...feedback });
+                    }}
+                  />
+                  <span className="ml-2 text-sm">Yes</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    className="form-radio text-[#6FBC44] w-4 h-4"
+                    checked={
+                      feedback.listAnswer[question.id - 1].answer === "false"
+                    }
+                    onChange={() => {
+                      feedback.listAnswer[question.id - 1].answer = "false";
+                      setFeedback({ ...feedback });
+                    }}
+                  />
+                  <span className="ml-2 text-sm">No</span>
+                </label>
+              </div>
+            </div>
+          ))}
 
           {/* Comments Section */}
           <div className="mb-6">
             <p className="mb-2 font-bold">Your comments about the course</p>
             <textarea
               className="w-full h-24 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6FBC44] text-sm"
-              value={feedback.comments}
+              value={feedback.description}
               onChange={(e) =>
-                setFeedback({ ...feedback, comments: e.target.value })
+                setFeedback({ ...feedback, description: e.target.value })
               }
             />
           </div>
