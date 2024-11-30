@@ -158,21 +158,66 @@ const Grade = ({ id }: Props) => {
       );
       alert("Add grade successfully");
       // TODO: Refetch data
-      // fetchData();
+      fetchData();
     } catch (error) {
       console.error(error);
     }
   };
 
   const calculateTotalTrainee = (traineeId: number) => {
-    const grades = listGradesUpdate.filter(
-      (grade: any) => grade.traineeId === traineeId
+    const userGrade = listGrade.find(
+      (grade: any) => grade.userId === traineeId
     );
-    if (grades.length === 0) return "";
-    const total = grades.reduce((acc: number, grade: any) => {
-      return acc + Number(grade.grade) * (grade.markWeight / 100);
-    }, 0);
+
+    const currentSubject = listSubject.find(
+      (subject: any) => subject.subjectId === selectedSubject
+    );
+
+    const subjectGrade = userGrade?.gradeComponentList.find(
+      (grade: any) => grade.subjectName === currentSubject.subjectName
+    );
+
+    const total = subjectGrade?.gradeComponents.reduce(
+      (acc: number, grade: any) => {
+        const gradeUpdate = listGradesUpdate.find(
+          (gradeUpdate: any) =>
+            gradeUpdate.traineeId === traineeId &&
+            gradeUpdate.markSchemeId === grade.markSchemeId
+        );
+
+        return (
+          acc + (gradeUpdate?.grade || grade.grade) * (grade.markWeight / 100)
+        );
+      },
+      0
+    );
+
+    if (!total) return "";
+
     return total.toFixed(1);
+  };
+
+  const findGrade = (userId: number, markSchemeId: number) => {
+    const userGrade = listGrade.find((grade: any) => grade.userId === userId);
+
+    const currentSubject = listSubject.find(
+      (subject: any) => subject.subjectId === selectedSubject
+    );
+    const subjectGrade = userGrade?.gradeComponentList.find(
+      (grade: any) => grade.subjectName === currentSubject.subjectName
+    );
+    const schemeGrade = subjectGrade?.gradeComponents.find(
+      (grade: any) => grade.markSchemeId === markSchemeId
+    );
+
+    return (
+      listGradesUpdate.find(
+        (grade: any) =>
+          grade.traineeId === userId && grade.markSchemeId === markSchemeId
+      )?.grade ||
+      schemeGrade?.grade ||
+      ""
+    );
   };
 
   return (
@@ -194,27 +239,6 @@ const Grade = ({ id }: Props) => {
             </SelectContent>
           </Select>
         </div>
-
-        {/* <div className="flex gap-4">
-          <button
-            onClick={handleDownloadTemplate}
-            className="bg-[#6FBC44] text-white px-6 py-2 rounded-md hover:bg-[#5da639] transition duration-200"
-          >
-            Download Template
-          </button>
-          <button
-            onClick={handleImport}
-            className="bg-[#6FBC44] text-white px-6 py-2 rounded-md hover:bg-[#5da639] transition duration-200"
-          >
-            Import
-          </button>
-          <button
-            onClick={handleExport}
-            className="bg-[#6FBC44] text-white px-6 py-2 rounded-md hover:bg-[#5da639] transition duration-200"
-          >
-            Export
-          </button>
-        </div> */}
       </div>
 
       <div className="bg-white rounded-lg shadow-lg">
@@ -230,14 +254,6 @@ const Grade = ({ id }: Props) => {
               <th className="py-4 px-6 text-left border-r border-[#5da639]">
                 Email
               </th>
-              {/* <th className="py-4 px-6 text-center border-r border-[#5da639]">
-                Assignment Average
-                <div className="text-sm font-normal">50%</div>
-              </th>
-              <th className="py-4 px-6 text-center border-r border-[#5da639]">
-                Final Average
-                <div className="text-sm font-normal">50%</div>
-              </th> */}
               {listSchemes?.map((scheme: any) => (
                 <th
                   key={scheme.markSchemeId}
@@ -269,22 +285,10 @@ const Grade = ({ id }: Props) => {
                     key={scheme.markSchemeId}
                     className="py-4 px-6 text-center border-r border-gray-200"
                   >
-                    {/* {student.grades?.find(
-                      (grade: any) => grade.schemeId === scheme.schemeId
-                    )?.grade || ""} */}
                     <input
                       type="number"
                       className="w-20 text-center border border-gray-300 rounded-md"
-                      value={
-                        listGradesUpdate.find(
-                          (grade: any) =>
-                            grade.traineeId === student.userId &&
-                            grade.markSchemeId === scheme.markSchemeId
-                        )?.grade || ""
-                        // student.grades?.find(
-                        //   (grade: any) => grade.schemeId ===2 scheme.markSchemeId
-                        // )?.grade || ""
-                      }
+                      value={findGrade(student.userId, scheme.markSchemeId)}
                       onChange={(e) => {
                         const value = Number(e.target.value);
                         if (value > 10 || value < 0) return;

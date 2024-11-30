@@ -95,6 +95,9 @@ type Props = {
 };
 
 const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
+  const currentDate = new Date().getDate();
+  const fakeScheduleDetail = 3;
+
   const currentMonth = new Date().getMonth();
   const [selectedMonth, setSelectedMonth] = useState<keyof typeof dateTime>(
     Object.keys(dateTime)[currentMonth] as keyof typeof dateTime
@@ -102,6 +105,7 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
   const [listSubject, setListSubject] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState("");
   const [listAttendance, setListAttendance] = useState([]);
+  const [listAttendanceUpdate, setListAttendanceUpdate] = useState([]);
 
   const fetchListSubject = async () => {
     try {
@@ -126,8 +130,8 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
       const res = await axios.post(
         `${BASE_API_URL}/attendance-management/search-by-class?classId=${id}&subjectId=${selectedSubject}`,
         {
-          // classId: id, // ID lớp học
-          // subjectId: selectedSubject, // ID môn học
+          classId: id, // ID lớp học
+          subjectId: selectedSubject, // ID môn học
         },
         {
           headers: {
@@ -138,20 +142,58 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
       if (res?.data) {
         console.log(res?.data?.data?.listAttendances);
         setListAttendance(res?.data?.data?.listAttendances);
+        setListAttendanceUpdate([]);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  console.log(listAttendance);
+  console.log("listAttendanceUpdate", listAttendanceUpdate);
+  console.log("listAttendance", listAttendance);
+  console.log("listTrainee", listTrainee);
+  console.log("listSubject", listSubject);
+  console.log("selectedSubject", selectedSubject);
 
   const handleChangeMonth = (month: keyof typeof dateTime) => {
     setSelectedMonth(month);
   };
 
+  const handleReset = () => {
+    setListAttendanceUpdate([]);
+  };
+
+  const handleAddAttendance = async () => {
+    try {
+      const formatData = listAttendanceUpdate.map((grade: any) => ({
+        status: grade.status,
+        attendanceNote: "note",
+        scheduleDetailId: fakeScheduleDetail,
+        userId: grade.userId,
+      }));
+
+      await axios.post(
+        `${BASE_API_URL}/attendance-management/attendance-update`,
+        {
+          data: formatData,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${getJwtToken()}`,
+          },
+        }
+      );
+      alert("Add attendance successfully");
+      // TODO: Refetch data
+      fetchListAttendance();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleSubjectChange = (subjectId: string) => {
     setSelectedSubject(subjectId);
+    setListAttendance([]);
   };
 
   const months = Object.keys(dateTime);
@@ -249,8 +291,41 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
                         <select
                           className={`bg-transparent cursor-pointer outline-none min-w-3 text-center font-medium
                                     ${getAttendanceColor("")}`}
-                          value=""
-                          onChange={(e) => console.log(e.target.value)}
+                          value={
+                            listAttendanceUpdate.find(
+                              (item) =>
+                                item.userId === trainee.userId &&
+                                item.date === date
+                            )?.status || ""
+                          }
+                          onChange={(e) => {
+                            const value = e.target.value;
+
+                            const foundIndex = listAttendanceUpdate.findIndex(
+                              (item) =>
+                                item.userId === trainee.userId &&
+                                item.date === date
+                            );
+                            if (foundIndex !== -1) {
+                              listAttendanceUpdate[foundIndex] = {
+                                userId: trainee.userId,
+                                date: date,
+                                status: value,
+                              };
+                              setListAttendanceUpdate([
+                                ...listAttendanceUpdate,
+                              ]);
+                            } else {
+                              setListAttendanceUpdate([
+                                ...listAttendanceUpdate,
+                                {
+                                  userId: trainee.userId,
+                                  date: date,
+                                  status: value,
+                                },
+                              ]);
+                            }
+                          }}
                         >
                           <option value="">-</option>
                           {attendanceStatusKeys.map((status, index) => (
@@ -268,6 +343,25 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex justify-center mt-6 space-x-4">
+            <button
+              className="bg-gray-200 px-6 py-2 rounded"
+              onClick={handleReset}
+            >
+              Reset
+            </button>
+            <button
+              className={`${
+                listAttendanceUpdate.length === 0
+                  ? "bg-[#bddaaa]"
+                  : "bg-[#6FBC44]"
+              }  text-white px-6 py-2 rounded`}
+              onClick={handleAddAttendance}
+              disabled={listAttendanceUpdate.length === 0}
+            >
+              Save
+            </button>
           </div>
         </CardContent>
       </Card>
