@@ -196,6 +196,24 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
     setListAttendance([]);
   };
 
+  const findAttendance = (
+    userId: number,
+    scheduleDetailId: number,
+    date: any
+  ) => {
+    const userAttendance = listAttendance.find(
+      (attendance: any) => attendance.userId === userId
+    );
+
+    const attendanceDetail = userAttendance?.litAttendanceStatuses.find(
+      (attendance: any) =>
+        attendance.scheduleDetailId === scheduleDetailId &&
+        attendance.date === date
+    );
+
+    return attendanceDetail?.status;
+  };
+
   const months = Object.keys(dateTime);
   const listDateOfMonth = dateTime[selectedMonth];
   const attendanceStatusKeys = Object.keys(attendanceStatus);

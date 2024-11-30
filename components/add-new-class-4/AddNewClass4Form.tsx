@@ -46,7 +46,7 @@ export const formatDateRange = (startDate: string, endDate: string) => {
     new Date(endDate),
     "HH:mm dd/MM/yyyy"
   )}`;
-}
+};
 
 const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
   const [formData, setFormData] = useState({
@@ -160,7 +160,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
   const handleUpdateClass = async () => {
     try {
       const response = await fetch(
-        `${BASE_API_URL}/class-management/update-class-by-admin/${data.classId}`,
+        `${BASE_API_URL}/class-management/update-class-by-admin`,
         {
           method: "POST",
           headers: {
@@ -188,7 +188,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
                 sessionOrder: session.sessionOrder,
                 description: session.description,
                 date: session.date ? new Date(session.date) : null,
-                startDate: session.startDate ? new Date(session.startDate) : null,
+                startDate: session.startDate ? new Date(session.date) : null,
                 endDate: session.endDate ? new Date(session.endDate) : null,
               })),
             })),
@@ -206,22 +206,25 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
     }
   };
 
-  const fetchTimeTableSubject = async (sessionsList: any, slot:any) => {
+  const fetchTimeTableSubject = async (sessionsList: any, slot: any) => {
     try {
-      const response = await fetch(`${BASE_API_URL}/class-management/get-time-table-session`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          startDate: new Date(data.startDate),
-          slot,
-          sessions: sessionsList.map((s: any) => ({
-            ...s,
-            startDate: new Date(s.startDate),
-          })),
-        }),
-      });
+      const response = await fetch(
+        `${BASE_API_URL}/class-management/get-time-table-session`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            startDate: new Date(data.startDate),
+            slot,
+            sessions: sessionsList.map((s: any) => ({
+              ...s,
+              startDate: new Date(s.startDate),
+            })),
+          }),
+        }
+      );
       const res = await response.json();
       console.log("res", res);
       if (res.code === "Success") {
@@ -230,14 +233,17 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const fetchTimeTableSubjects = async () => {
     try {
       // tôi muốn từ list subject lấy ra list session của từng subject và gán vào subjects
       const newSubjects = await Promise.all(
         data?.subjectList?.map(async (subject: any) => {
-          const sessionsList = await fetchTimeTableSubject(subject.sessionsList, subject.slot);
+          const sessionsList = await fetchTimeTableSubject(
+            subject.sessionsList,
+            subject.slot
+          );
           return {
             ...subject,
             sessionsList,
@@ -249,7 +255,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchTimeTableSubjects();
@@ -361,19 +367,23 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
 
                 {subject?.isExpanded && (
                   <>
-                    {subject?.sessionsList?.map((lesson: any, index: number) => (
-                      <div key={index} className="grid grid-cols-5 border-t">
-                        <div className="p-4 border-r">{index + 1}</div>
-                        <div className="p-4 border-r">{lesson.lesson}</div>
-                        <div className="p-4 border-r">
-                          {lesson.sessionOrder}
+                    {subject?.sessionsList?.map(
+                      (lesson: any, index: number) => (
+                        <div key={index} className="grid grid-cols-5 border-t">
+                          <div className="p-4 border-r">{index + 1}</div>
+                          <div className="p-4 border-r">{lesson.lesson}</div>
+                          <div className="p-4 border-r">
+                            {lesson.sessionOrder}
+                          </div>
+                          <div className="p-4 border-r">
+                            {lesson.date
+                              ? formatDateRange(lesson.date, lesson.endDate)
+                              : "--"}
+                          </div>
+                          <div className="p-4">{lesson.description}</div>
                         </div>
-                        <div className="p-4 border-r">
-                          {lesson.date ? formatDateRange(lesson.date ,lesson.endDate) : "--"}
-                        </div>
-                        <div className="p-4">{lesson.description}</div>
-                      </div>
-                    ))}
+                      )
+                    )}
                     <LessonForm
                       setSubjects={setSubjects}
                       subjects={subjects}
