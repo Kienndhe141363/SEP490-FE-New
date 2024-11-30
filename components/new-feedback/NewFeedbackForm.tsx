@@ -1,14 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import {
-  Home,
-  Users,
-  BookOpen,
-  Settings,
-  LogOut,
-  UserCircle,
-  BookCheck,
-} from "lucide-react";
 
 interface FeedbackData {
   curriculumRating: number;
@@ -23,6 +14,29 @@ type Props = {
   userId: any;
   classId: any;
 };
+
+const listQuestion = [
+  {
+    id: 1,
+    question: "How would you rate the curriculum quality?",
+  },
+  {
+    id: 2,
+    question: "Would you recommend the course to others?",
+  },
+  {
+    id: 3,
+    question: "Does the trainer come to class on time?",
+  },
+  {
+    id: 4,
+    question: "Are you satisfied with the curriculum?",
+  },
+  {
+    id: 5,
+    question: "Does the trainer teach the full lesson?",
+  },
+];
 
 const NewFeedbackForm = ({ userId, classId }: Props) => {
   console.log("userId", userId);
