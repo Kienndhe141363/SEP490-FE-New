@@ -14,7 +14,14 @@ import TakeAttendanceForm from "./Attendance";
 
 const page: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Class Info");
-  const listTabs = ["Class Info", "Trainee", "Attendance", "Grade", "Session"];
+  const listTabs = [
+    "Class Info",
+    "Trainee",
+    "Attendance",
+    "Grade",
+    "Session",
+    "Weekly Timetable",
+  ];
 
   const { id } = useParams();
 
@@ -75,6 +82,8 @@ const page: React.FC = () => {
         return <Grade id={id} />;
       case "Session":
         return <Session id={id} />;
+      case "Weekly Timetable":
+        return <WeeklyTimetableForm />;
       default:
         return null;
     }

@@ -1,27 +1,76 @@
-'use client';
+"use client";
 
-import { BookOpen, BookOpenText, CircleUser, GraduationCap, Home, Library, LogOut, MessagesSquare, Settings, Users } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import React, { ReactNode, useState, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import {
+  BookOpen,
+  BookOpenText,
+  CircleUser,
+  GraduationCap,
+  Home,
+  Library,
+  LogOut,
+  MessagesSquare,
+  Settings,
+  Users,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import React, { ReactNode, useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import useRole from "@/hooks/useRole";
+import { BASE_API_URL } from "@/config/constant";
+import axios from "axios";
 
 const Layout = ({ children }: { children: ReactNode }) => {
-  const currentPath = usePathname()
+  const currentPath = usePathname();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [profileData, setProfileData] = useState<any>({
+    fullName: "",
+    email: "",
+    dateOfBirth: "",
+    phone: "",
+    address: "",
+    emergencyPhone: "",
+    roles: "",
+    account: "",
+  });
+
+  useEffect(() => {
+    // Lấy token từ localStorage
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      router.push("/authen/login"); // Chuyển hướng nếu không có token
+      return;
+    }
+
+    // Gọi API để lấy thông tin người dùng
+    axios
+      .get(`${BASE_API_URL}/user/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        setProfileData(response.data);
+      })
+      .catch(() => {
+        router.push("/authen/login"); // Chuyển hướng nếu có lỗi
+      })
+      .finally(() => {});
+  }, [router]);
 
   // Add event listeners for route changes
   useEffect(() => {
     const handleStart = () => setIsLoading(true);
     const handleComplete = () => setIsLoading(false);
 
-    window.addEventListener('beforeunload', handleStart);
-    window.addEventListener('load', handleComplete);
+    window.addEventListener("beforeunload", handleStart);
+    window.addEventListener("load", handleComplete);
 
     return () => {
-      window.removeEventListener('beforeunload', handleStart);
-      window.removeEventListener('load', handleComplete);
+      window.removeEventListener("beforeunload", handleStart);
+      window.removeEventListener("load", handleComplete);
     };
   }, []);
 
@@ -30,10 +79,14 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
   const handleSignOut = () => {
     // Remove JWT token from localStorage
-    localStorage.removeItem('jwt_token');
+    localStorage.removeItem("jwt_token");
     // Redirect to login page or home
-    router.push('/authen/login'); // or wherever your login page is
+    router.push("/authen/login"); // or wherever your login page is
   };
+
+  const role = useRole();
+  console.log(role);
+  console.log(profileData);
 
   return (
     <div className="flex min-h-screen">
@@ -56,44 +109,105 @@ const Layout = ({ children }: { children: ReactNode }) => {
           />
         </div>
         <nav className="text-white">
-          <Link href="/" className={`flex items-center px-6 py-3 ${isActive('/') ? 'bg-[#5da639]' : 'hover:bg-[#5da639]'}`}>
+          <Link
+            href="/"
+            className={`flex items-center px-6 py-3 ${
+              isActive("/") ? "bg-[#5da639]" : "hover:bg-[#5da639]"
+            }`}
+          >
             <Home className="w-6 h-6 mr-4" />
             <span className="font-bold">Home</span>
           </Link>
 
-          <Link href="/feature/view-system-setting" className={`flex items-center px-6 py-3  ${isActive('/feature/view-system-setting') ? 'bg-[#5da639]' : 'hover:bg-[#5da639]'}`}>
-            <Settings className="w-6 h-6 mr-4" />
-            <span className="font-bold">System Setting</span>
-          </Link>
+          {role !== "ROLE_TRAINEE" && (
+            <>
+              <Link
+                href="/feature/view-system-setting"
+                className={`flex items-center px-6 py-3  ${
+                  isActive("/feature/view-system-setting")
+                    ? "bg-[#5da639]"
+                    : "hover:bg-[#5da639]"
+                }`}
+              >
+                <Settings className="w-6 h-6 mr-4" />
+                <span className="font-bold">System Setting</span>
+              </Link>
 
-          <Link href="/feature/view-user-list" className={`flex items-center px-6 py-3 ${isActive('/feature/view-user-list') ? 'bg-[#5da639]' : 'hover:bg-[#5da639]'}`}>
-            <Users className="w-6 h-6 mr-4" />
-            <span className="font-bold">User Management</span>
-          </Link>
+              <Link
+                href="/feature/view-user-list"
+                className={`flex items-center px-6 py-3 ${
+                  isActive("/feature/view-user-list")
+                    ? "bg-[#5da639]"
+                    : "hover:bg-[#5da639]"
+                }`}
+              >
+                <Users className="w-6 h-6 mr-4" />
+                <span className="font-bold">User Management</span>
+              </Link>
 
-          <Link href="/feature/view-curriculum-list" className={`flex items-center px-6 py-3 ${isActive('/feature/view-curriculum-list') ? 'bg-[#5da639]' : 'hover:bg-[#5da639]'}`}>
-            <Library className="w-6 h-6 mr-4" />
-            <span className="font-bold">Curriculum Management</span>
-          </Link>
+              <Link
+                href="/feature/view-curriculum-list"
+                className={`flex items-center px-6 py-3 ${
+                  isActive("/feature/view-curriculum-list")
+                    ? "bg-[#5da639]"
+                    : "hover:bg-[#5da639]"
+                }`}
+              >
+                <Library className="w-6 h-6 mr-4" />
+                <span className="font-bold">Curriculum Management</span>
+              </Link>
 
-          <Link href="/feature/view-subject-list" className={`flex items-center px-6 py-3 ${isActive('/feature/view-subject-list') ? 'bg-[#5da639]' : 'hover:bg-[#5da639]'}`}>
-            <BookOpenText className="w-6 h-6 mr-4" />
-            <span className="font-bold">Subject Management</span>
-          </Link>
+              <Link
+                href="/feature/view-subject-list"
+                className={`flex items-center px-6 py-3 ${
+                  isActive("/feature/view-subject-list")
+                    ? "bg-[#5da639]"
+                    : "hover:bg-[#5da639]"
+                }`}
+              >
+                <BookOpenText className="w-6 h-6 mr-4" />
+                <span className="font-bold">Subject Management</span>
+              </Link>
+            </>
+          )}
 
-          <Link href="/feature/view-class-list" className={`flex items-center px-6 py-3 ${isActive('/feature/view-class-list') ? 'bg-[#5da639]' : 'hover:bg-[#5da639]'}`}>
+          <Link
+            // href="/feature/view-class-list"
+            href={`${
+              role === "ROLE_TRAINEE"
+                ? `/feature/view-class-detail/${profileData.userId}`
+                : "/feature/view-class-list"
+            }`}
+            className={`flex items-center px-6 py-3 ${
+              isActive("/feature/view-class-list")
+                ? "bg-[#5da639]"
+                : "hover:bg-[#5da639]"
+            }`}
+          >
             <GraduationCap className="w-6 h-6 mr-4" />
             <span className="font-bold text-base">Class Management</span>
           </Link>
 
-          <Link href="/feature/feedback-list" className={`flex items-center px-6 py-3 ${isActive('/feature/feedback-list') ? 'bg-[#5da639]' : 'hover:bg-[#5da639]'}`}>
+          <Link
+            href="/feature/feedback-list"
+            className={`flex items-center px-6 py-3 ${
+              isActive("/feature/feedback-list")
+                ? "bg-[#5da639]"
+                : "hover:bg-[#5da639]"
+            }`}
+          >
             <MessagesSquare className="w-6 h-6 mr-4" />
             <span className="font-bold">Feedback</span>
           </Link>
 
-          
-
-          <Link href="/authen/view-profile" className={`flex items-center px-6 py-3 mt-40 ${isActive('/authen/view-profile') ? 'bg-[#5da639]' : 'hover:bg-[#5da639]'}`}>
+          <Link
+            href="/authen/view-profile"
+            className={`flex items-center px-6 py-3 mt-40 ${
+              isActive("/authen/view-profile")
+                ? "bg-[#5da639]"
+                : "hover:bg-[#5da639]"
+            }`}
+          >
             <CircleUser className="w-6 h-6 mr-4" />
             <span className="font-bold">My Profile</span>
           </Link>
@@ -109,9 +223,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       </div>
 
       {/* Main content */}
-      <div className='flex-1'>
-        {children}
-      </div>
+      <div className="flex-1">{children}</div>
     </div>
   );
 };
