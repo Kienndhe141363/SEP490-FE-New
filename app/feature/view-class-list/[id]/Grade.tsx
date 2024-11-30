@@ -20,6 +20,8 @@ const Grade = ({ id }: Props) => {
   const [listSubject, setListSubject] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState("");
   const [listSchemes, setListSchemes] = useState([]);
+  const [listGrade, setListGrade] = useState([]);
+  const [listGradesUpdate, setListGradesUpdate] = useState([]);
 
   // const listSchemes = listSubject?.find(
   //   (subject: any) => subject.subjectId === selectedSubject
@@ -101,8 +103,8 @@ const Grade = ({ id }: Props) => {
         }
       );
       const res = response?.data?.data?.dataSource;
-      console.log(res);
-      // setStudents(res);
+      setListGrade(res);
+      setListGradesUpdate([]);
     } catch (error) {
       console.error(error);
     }
@@ -114,8 +116,12 @@ const Grade = ({ id }: Props) => {
     fetchListSubject();
   }, []);
 
-  console.log(listTrainee);
+  console.log("listTrainee", listTrainee);
   console.log(listSubject);
+  console.log(selectedSubject);
+  console.log("listSchemes", listSchemes);
+  console.log("listGrade", listGrade);
+  console.log("listGradesUpdate", listGradesUpdate);
 
   // Handle subject change
   const handleSubjectChange = (value: string) => {
@@ -124,11 +130,49 @@ const Grade = ({ id }: Props) => {
       (subject: any) => subject.subjectId === value
     )?.schemes;
     setListSchemes(schemes);
+    setListGradesUpdate([]);
   };
 
-  const calculateTotal = (assignment: number | null, final: number | null) => {
-    if (!assignment || !final) return "";
-    return (assignment * 0.5 + final * 0.5).toFixed(1);
+  const handleReset = () => {
+    setListGradesUpdate([]);
+  };
+
+  const handleAddGrade = async () => {
+    try {
+      const formatData = listGradesUpdate.map((grade: any) => ({
+        classId: id,
+        user: grade.user,
+        subjectId: selectedSubject,
+        markSchemeId: grade.markSchemeId,
+        grade: grade.grade,
+      }));
+
+      await axios.post(
+        `${BASE_API_URL}/grade-management/add-grade-trainee`,
+        formatData,
+        {
+          headers: {
+            Authorization: `Bearer ${getJwtToken()}`,
+          },
+        }
+      );
+      alert("Add grade successfully");
+      // TODO: Refetch data
+      // fetchData();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const calculateTotalTrainee = (traineeId: number) => {
+    const grades = listGradesUpdate.filter(
+      (grade: any) => grade.traineeId === traineeId
+    );
+    if (grades.length === 0) return "";
+    const total = grades.reduce((acc: number, grade: any) => {
+      return acc + Number(grade.grade) * (grade.markWeight / 100);
+    }, 0);
+    return total.toFixed(1);
   };
 
   return (
@@ -225,21 +269,75 @@ const Grade = ({ id }: Props) => {
                     key={scheme.markSchemeId}
                     className="py-4 px-6 text-center border-r border-gray-200"
                   >
-                    {student.grades?.find(
+                    {/* {student.grades?.find(
                       (grade: any) => grade.schemeId === scheme.schemeId
-                    )?.grade || ""}
+                    )?.grade || ""} */}
+                    <input
+                      type="number"
+                      className="w-20 text-center border border-gray-300 rounded-md"
+                      value={
+                        listGradesUpdate.find(
+                          (grade: any) =>
+                            grade.traineeId === student.userId &&
+                            grade.markSchemeId === scheme.markSchemeId
+                        )?.grade || ""
+                        // student.grades?.find(
+                        //   (grade: any) => grade.schemeId ===2 scheme.markSchemeId
+                        // )?.grade || ""
+                      }
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        if (value > 10 || value < 0) return;
+
+                        const gradeIndex = listGradesUpdate.findIndex(
+                          (grade: any) =>
+                            grade.traineeId === student.userId &&
+                            grade.markSchemeId === scheme.markSchemeId
+                        );
+                        if (gradeIndex !== -1) {
+                          const newGradesUpdate = [...listGradesUpdate];
+                          newGradesUpdate[gradeIndex].grade = e.target.value;
+                          setListGradesUpdate(newGradesUpdate);
+                        } else {
+                          setListGradesUpdate([
+                            ...listGradesUpdate,
+                            {
+                              traineeId: student.userId,
+                              user: student.account,
+                              markSchemeId: scheme.markSchemeId,
+                              grade:
+                                e.target.value === ""
+                                  ? 0
+                                  : Number(e.target.value),
+                              markWeight: scheme.markWeight,
+                            },
+                          ]);
+                        }
+                      }}
+                    />
                   </td>
                 ))}
                 <td className="py-4 px-6 text-center">
-                  {calculateTotal(
-                    student.assignmentAverage,
-                    student.finalAverage
-                  )}
+                  {calculateTotalTrainee(student.userId)}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="flex justify-center mt-6 space-x-4">
+        <button className="bg-gray-200 px-6 py-2 rounded" onClick={handleReset}>
+          Reset
+        </button>
+        <button
+          className={`${
+            listGradesUpdate.length === 0 ? "bg-[#bddaaa]" : "bg-[#6FBC44]"
+          }  text-white px-6 py-2 rounded`}
+          onClick={handleAddGrade}
+          disabled={listGradesUpdate.length === 0}
+        >
+          Save
+        </button>
       </div>
     </div>
   );
