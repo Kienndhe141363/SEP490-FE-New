@@ -188,17 +188,19 @@ const Layout = ({ children }: { children: ReactNode }) => {
             <span className="font-bold text-base">Class Management</span>
           </Link>
 
-          <Link
-            href="/feature/feedback-list"
-            className={`flex items-center px-6 py-3 ${
-              isActive("/feature/feedback-list")
-                ? "bg-[#5da639]"
-                : "hover:bg-[#5da639]"
-            }`}
-          >
-            <MessagesSquare className="w-6 h-6 mr-4" />
-            <span className="font-bold">Feedback</span>
-          </Link>
+          {role !== "ROLE_TRAINEE" && (
+            <Link
+              href="/feature/feedback-list"
+              className={`flex items-center px-6 py-3 ${
+                isActive("/feature/feedback-list")
+                  ? "bg-[#5da639]"
+                  : "hover:bg-[#5da639]"
+              }`}
+            >
+              <MessagesSquare className="w-6 h-6 mr-4" />
+              <span className="font-bold">Feedback</span>
+            </Link>
+          )}
 
           <Link
             href="/authen/view-profile"

@@ -26,11 +26,13 @@ const WeeklyTimetableForm: React.FC = () => {
     const startDay = new Date(2024, 0, 1 + index * 7);
     const endDay = new Date(startDay);
     endDay.setDate(endDay.getDate() + 6);
-    return `${startDay.getDate()}/${startDay.getMonth() + 1}-${endDay.getDate()}/${endDay.getMonth() + 1}`;
+    return `${startDay.getDate()}/${
+      startDay.getMonth() + 1
+    }-${endDay.getDate()}/${endDay.getMonth() + 1}`;
   });
 
   return (
-    <div className="pl-[250px] w-full min-h-screen bg-white">
+    <div className="w-full min-h-screen bg-white">
       <div className="p-6 w-full">
         {/* Main Content */}
         <div className="flex-1 p-6">
@@ -57,7 +59,10 @@ const WeeklyTimetableForm: React.FC = () => {
                     <th className="p-3 bg-[#4CAF50] text-black border">
                       <div className="flex items-center">
                         <span className="mr-2">Week:</span>
-                        <Select value={selectedWeek} onValueChange={setSelectedWeek}>
+                        <Select
+                          value={selectedWeek}
+                          onValueChange={setSelectedWeek}
+                        >
                           <SelectTrigger className="w-[140px]">
                             <SelectValue>{selectedWeek}</SelectValue>
                           </SelectTrigger>
@@ -72,7 +77,10 @@ const WeeklyTimetableForm: React.FC = () => {
                       </div>
                     </th>
                     {days.slice(1).map((day) => (
-                      <th key={day} className="p-3 bg-[#4CAF50] text-white border">
+                      <th
+                        key={day}
+                        className="p-3 bg-[#4CAF50] text-white border"
+                      >
                         {day}
                       </th>
                     ))}
@@ -87,7 +95,9 @@ const WeeklyTimetableForm: React.FC = () => {
                       {/* Columns for each day */}
                       {days.slice(1).map((day) => (
                         <td key={`${slot.id}-${day}`} className="p-3 border">
-                          <Select defaultValue={slot.id === "slot1" ? "JAVA" : "KOR1"}>
+                          <Select
+                            defaultValue={slot.id === "slot1" ? "JAVA" : "KOR1"}
+                          >
                             <SelectTrigger className="w-full mb-2">
                               <SelectValue />
                             </SelectTrigger>
@@ -110,8 +120,14 @@ const WeeklyTimetableForm: React.FC = () => {
                           </div>
 
                           <div>
-                            <div className="text-xs text-green-600">Trainer:</div>
-                            <Select defaultValue={slot.id === "slot1" ? "LongNQ3" : "AnhBH17"}>
+                            <div className="text-xs text-green-600">
+                              Trainer:
+                            </div>
+                            <Select
+                              defaultValue={
+                                slot.id === "slot1" ? "LongNQ3" : "AnhBH17"
+                              }
+                            >
                               <SelectTrigger className="w-full">
                                 <SelectValue />
                               </SelectTrigger>
@@ -131,7 +147,9 @@ const WeeklyTimetableForm: React.FC = () => {
           </Card>
 
           <div className="flex justify-center gap-4 mt-6">
-            <button className="bg-[#4CAF50] text-white px-8 py-2 rounded">Save</button>
+            <button className="bg-[#4CAF50] text-white px-8 py-2 rounded">
+              Save
+            </button>
             <button className="bg-gray-200 px-8 py-2 rounded">Cancel</button>
           </div>
         </div>

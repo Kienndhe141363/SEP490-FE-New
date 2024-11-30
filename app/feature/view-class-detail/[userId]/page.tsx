@@ -9,8 +9,17 @@ import Trainee from "../../view-class-list/[id]/Trainee";
 import Grade from "../../view-class-list/[id]/Grade";
 import Session from "../../view-class-list/[id]/Session";
 import WeeklyTimetableForm from "@/components/weekly-timeable/WeeklyTimeableForm";
+import Feedback from "./Feedback";
+import NewFeedbackForm from "@/components/new-feedback/NewFeedbackForm";
 
-const listTabs = ["Class Info", "Trainee", "Grade", "Session", "Schedule"];
+const listTabs = [
+  "Class Info",
+  "Trainee",
+  "Grade",
+  "Session",
+  "Schedule",
+  "Feedback",
+];
 
 type Props = {};
 
@@ -99,6 +108,8 @@ const page = (props: Props) => {
       case "Schedule":
       case "Weekly Timetable":
         return <WeeklyTimetableForm />;
+      case "Feedback":
+        return <NewFeedbackForm userId={userId} classId={id} />;
       default:
         return null;
     }

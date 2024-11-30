@@ -11,6 +11,7 @@ import Session from "./Session";
 import useRole from "@/hooks/useRole";
 import Grade from "./Grade";
 import TakeAttendanceForm from "./Attendance";
+import WeeklyTimetableForm from "@/components/weekly-timeable/WeeklyTimeableForm";
 
 const page: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Class Info");
