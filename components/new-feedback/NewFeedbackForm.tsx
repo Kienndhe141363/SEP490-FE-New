@@ -110,13 +110,32 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
           userId,
           classId,
           subjectId: selectedSubject,
-          listAnswer: feedback.listAnswer,
+          // listAnswers: feedback.listAnswer,
+          listAnswers: [
+            {
+              questionId: 1,
+              answer: 1,
+            },
+            {
+              questionId: 2,
+              answer: 1,
+            },
+            {
+              questionId: 3,
+              answer: "test",
+            },
+            {
+              questionId: 4,
+              answer: 3,
+            },
+            {
+              questionId: 5,
+              answer: 1,
+            },
+          ],
           description: feedback.description,
           feedbackDate: new Date().toISOString(),
           openTime: new Date().toISOString(),
-
-          questionId: 1,
-          feedBackId: 1,
         }),
       });
       const data = await res.json();
