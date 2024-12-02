@@ -84,7 +84,7 @@ const page: React.FC = () => {
       case "Session":
         return <Session id={id} />;
       case "Weekly Timetable":
-        return <WeeklyTimetableForm />;
+        return <WeeklyTimetableForm id={id} listTrainee={listTrainee} />;
       default:
         return null;
     }

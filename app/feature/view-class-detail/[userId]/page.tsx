@@ -11,6 +11,7 @@ import Session from "../../view-class-list/[id]/Session";
 import WeeklyTimetableForm from "@/components/weekly-timeable/WeeklyTimeableForm";
 import Feedback from "./Feedback";
 import NewFeedbackForm from "@/components/new-feedback/NewFeedbackForm";
+import axios from "axios";
 
 const listTabs = [
   "Class Info",
@@ -32,14 +33,22 @@ const page = (props: Props) => {
 
   const fetchClassDetail = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.post(
         `${BASE_API_URL}/class-management/get-class-user/${userId}`,
+        {},
         {
-          headers: { Authorization: `Bearer ${getJwtToken()}` },
+          headers: {
+            Authorization: `Bearer ${getJwtToken()}`,
+          },
         }
       );
-      const res = await response.json();
-      console.log(res);
+      // const res = await response.json();
+      // console.log(response?.data);
+      if (response) {
+        // id = response?.data?.data?.classId;
+        console.log(response?.data?.data?.code);
+        console.log(response?.data);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -107,7 +116,7 @@ const page = (props: Props) => {
         return <Session id={id} />;
       case "Schedule":
       case "Weekly Timetable":
-        return <WeeklyTimetableForm />;
+        return <WeeklyTimetableForm id={id} listTrainee={listTrainee} />;
       case "Feedback":
         return <NewFeedbackForm userId={userId} classId={id} />;
       default:

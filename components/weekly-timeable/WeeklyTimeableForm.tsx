@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -9,14 +9,87 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BASE_API_URL } from "@/config/constant";
+import { getJwtToken } from "@/lib/utils";
+import axios from "axios";
 
-const WeeklyTimetableForm: React.FC = () => {
-  const [selectedWeek, setSelectedWeek] = useState("20/10-26/10");
-  const [selectedClass, setSelectedClass] = useState("HN24_FR_KS_04");
+type WeeklyTimetableFormProps = {
+  id: any;
+  listTrainee: any;
+};
+
+const WeeklyTimetableForm = ({ id, listTrainee }: WeeklyTimetableFormProps) => {
+  console.log(id);
+  console.log(listTrainee);
+  const account = listTrainee[0]?.account;
+  console.log(account);
+
+  const [data, setData] = useState<any>(null);
+
+  const getSlot = (date: string) => {
+    const time = new Date(date).getHours();
+    if (time >= 7 && time < 9) {
+      return "slot1";
+    } else if (time >= 9 && time < 13) {
+      return "slot2";
+    } else {
+      return "slot3";
+    }
+  };
+
+  const getDayOfWeek = (date: string) => {
+    const day = new Date(date).getDay();
+    return ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][day];
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.post(
+        `${BASE_API_URL}/attendance-management/attendance-by-user`,
+        {
+          classId: id,
+          userName: account,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${getJwtToken()}`,
+          },
+        }
+      );
+
+      const listSubjectTimeTable =
+        response?.data?.data?.listSubjectTimeTable || [];
+
+      // Tạo mảng mới với subjectName cho từng phần tử
+      // Kiểm tra dữ liệu đầu vào và xử lý với bảo vệ
+      const formattedArray = (listSubjectTimeTable || []).flatMap((item: any) =>
+        (item.listWeeklyAttendances || []).map((attendance: any) => ({
+          ...attendance,
+          subjectName: item.subjectName, // Thêm subjectName vào mỗi phần tử attendance
+          slot: getSlot(attendance.startDate),
+          dayOfWeek: getDayOfWeek(attendance.startDate),
+        }))
+      );
+
+      setData(formattedArray || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  console.log(data);
+
+  useEffect(() => {
+    if (account) {
+      fetchData();
+    }
+  }, []);
+
+  const [selectedWeek, setSelectedWeek] = useState("2/12-8/12");
 
   const timeSlots = [
-    { id: "slot1", time: "9h00-11h30" },
-    { id: "slot2", time: "13h30-17h00" },
+    { id: 1, time: "7h30-9h00" },
+    { id: 2, time: "9h30-11h00" },
+    { id: 3, time: "13h30-17h00" },
   ];
 
   const days = ["Week", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
@@ -31,6 +104,23 @@ const WeeklyTimetableForm: React.FC = () => {
     }-${endDay.getDate()}/${endDay.getMonth() + 1}`;
   });
 
+  const dataDisplayByWeek = data?.filter((item: any) => {
+    const [startWeek, endWeek] = selectedWeek.split("-");
+    const [startDay, startMonth] = startWeek.split("/");
+    const [endDay, endMonth] = endWeek.split("/");
+    // Sử dụng Date.UTC để tạo ngày với múi giờ UTC
+    const startDate = new Date(
+      Date.UTC(2024, parseInt(startMonth) - 1, parseInt(startDay))
+    );
+    const endDate = new Date(
+      Date.UTC(2024, parseInt(endMonth) - 1, parseInt(endDay))
+    );
+
+    const date = new Date(item.startDate);
+    return date >= startDate && date <= endDate;
+  });
+  console.log(dataDisplayByWeek);
+
   return (
     <div className="w-full min-h-screen bg-white">
       <div className="p-6 w-full">
@@ -38,7 +128,7 @@ const WeeklyTimetableForm: React.FC = () => {
         <div className="flex-1 p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-4xl font-semibold">Weekly Timetable</h1>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <span>Class:</span>
               <Select value={selectedClass} onValueChange={setSelectedClass}>
                 <SelectTrigger className="w-[150px]">
@@ -48,7 +138,7 @@ const WeeklyTimetableForm: React.FC = () => {
                   <SelectItem value="HN24_FR_KS_04">HN24_FR_KS_04</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
 
           <Card className="shadow-md">
@@ -93,7 +183,7 @@ const WeeklyTimetableForm: React.FC = () => {
                         <div className="text-sm">{slot.time}</div>
                       </td>
                       {/* Columns for each day */}
-                      {days.slice(1).map((day) => (
+                      {/* {days.slice(1).map((day) => (
                         <td key={`${slot.id}-${day}`} className="p-3 border">
                           <Select
                             defaultValue={slot.id === "slot1" ? "JAVA" : "KOR1"}
@@ -138,7 +228,34 @@ const WeeklyTimetableForm: React.FC = () => {
                             </Select>
                           </div>
                         </td>
-                      ))}
+                      ))} */}
+                      {days.slice(1).map((day) => {
+                        const dataBySlot = dataDisplayByWeek?.filter(
+                          (item: any) => item.slot === `slot${slot.id}`
+                        );
+                        const dataByDay = dataBySlot?.filter(
+                          (item: any) => item.dayOfWeek === day
+                        );
+                        return (
+                          <td key={`${slot.id}-${day}`} className="p-3 border">
+                            {dataByDay?.map((item: any) => (
+                              <div key={item.id} className="mb-2">
+                                <div className="text-lg text-green-600">
+                                  {item.subjectName}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  <span>Location: </span>
+                                  {item.location}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  <span>Trainer: </span>
+                                  {item.trainer}
+                                </div>
+                              </div>
+                            ))}
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>
@@ -146,12 +263,12 @@ const WeeklyTimetableForm: React.FC = () => {
             </CardContent>
           </Card>
 
-          <div className="flex justify-center gap-4 mt-6">
+          {/* <div className="flex justify-center gap-4 mt-6">
             <button className="bg-[#4CAF50] text-white px-8 py-2 rounded">
               Save
             </button>
             <button className="bg-gray-200 px-8 py-2 rounded">Cancel</button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
