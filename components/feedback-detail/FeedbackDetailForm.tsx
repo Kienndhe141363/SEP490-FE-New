@@ -33,23 +33,28 @@ type Props = {
 const listQuestion = [
   {
     id: 1,
-    question: "How would you rate the curriculum quality?",
+    question: "How would you rate this course?",
+    type: "rating",
   },
   {
     id: 2,
-    question: "Would you recommend the course to others?",
+    question: "Would you recommend this course to others?",
+    type: "yes-no",
   },
   {
     id: 3,
-    question: "Does the trainer come to class on time?",
+    question: "Please provide additional comments",
+    type: "text",
   },
   {
     id: 4,
-    question: "Are you satisfied with the curriculum?",
+    question: "How satisfied are you with the teacher?",
+    type: "rating",
   },
   {
     id: 5,
-    question: "Does the trainer teach the full lesson?",
+    question: "Was the course material clear?",
+    type: "yes-no",
   },
 ];
 
@@ -83,33 +88,81 @@ const FeedbackDetailForm = ({ id }: Props) => {
 
   console.log("data", data);
 
-  // Sample data - in a real app, this would come from an API
-  const feedbackDetail: FeedbackDetailData = {
-    class: "Java01",
-    trainer: "HuyLT",
-    subjectName: "Java",
-    duration: "12/8/2024-12/12-2024",
-    curriculumRating: 3,
-    recommendCourse: true,
-    satisfiedCurriculum: true,
-    trainerTeachFull: true,
-    trainerOnTime: true,
-    description: "",
-  };
-
-  const renderStar = (position: number) => {
-    return (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill={position <= feedbackDetail.curriculumRating ? "#FFD700" : "none"}
-        stroke="#FFD700"
-        strokeWidth="2"
-      >
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-    );
+  const renderInputByType = (item: any) => {
+    switch (item.type) {
+      case "rating":
+        const value = data?.questionAnswerForm?.find(
+          (q: any) => q?.questions?.questionId === item.id
+        )?.answer;
+        // value : 1.0, 2.0, 3.0, 4.0, 5.0
+        const numberValue = parseInt(value);
+        console.log("number", numberValue);
+        return (
+          <div className="flex space-x-4">
+            {[1, 2, 3, 4, 5].map((number) => (
+              <label
+                key={number}
+                className="inline-flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  className="form-radio text-[#6FBC44]"
+                  checked={numberValue === number}
+                  readOnly
+                />
+                <span className="ml-2">{number}</span>
+              </label>
+            ))}
+          </div>
+        );
+      case "yes-no":
+        return (
+          <div className="space-x-4">
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                className="form-radio text-[#6FBC44]"
+                checked={
+                  data?.questionAnswerForm?.find(
+                    (q: any) => q?.questions?.questionId === item.id
+                  )?.answer === "true"
+                }
+                readOnly
+              />
+              <span className="ml-2">Yes</span>
+            </label>
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                className="form-radio text-[#6FBC44]"
+                checked={
+                  data?.questionAnswerForm?.find(
+                    (q: any) => q?.questions?.questionId === item.id
+                  )?.answer === "false"
+                }
+                readOnly
+              />
+              <span className="ml-2">No</span>
+            </label>
+          </div>
+        );
+      case "text":
+        return (
+          <div className="w-full">
+            <textarea
+              className="w-full p-2 border rounded-lg"
+              value={
+                data?.questionAnswerForm?.find(
+                  (q: any) => q?.questions?.questionId === item.id
+                )?.answer
+              }
+              readOnly
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   console.log("data", data);
@@ -215,129 +268,18 @@ const FeedbackDetailForm = ({ id }: Props) => {
                 <span className="font-bold">Subject Name:</span>
                 <span>{data.subjectName}</span>
               </div>
-              <div className="flex gap-2">
+              {/* <div className="flex gap-2">
                 <span className="font-bold">Duration:</span>
                 <span>
                   {data.openDate}-{data.endDate}
                 </span>
-              </div>
+              </div> */}
             </div>
-
-            {/* Rating Section */}
-            {/* <div className="mb-6">
-              <p className="mb-2 font-medium">
-                How would you rate the curriculum quality?
-              </p>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((num) => renderStar(num))}
-              </div>
-            </div> */}
-
-            {/* Questions Grid */}
-            {/* <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-6">
-              <div>
-                <p className="mb-2">
-                  Would you recommend the course to others?
-                </p>
-                <div className="space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-[#6FBC44]"
-                      checked={feedbackDetail.recommendCourse}
-                      readOnly
-                    />
-                    <span className="ml-2">Yes</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-[#6FBC44]"
-                      checked={!feedbackDetail.recommendCourse}
-                      readOnly
-                    />
-                    <span className="ml-2">No</span>
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <p className="mb-2">Does the trainer come to class on time?</p>
-                <div className="space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-[#6FBC44]"
-                      checked={feedbackDetail.trainerOnTime}
-                      readOnly
-                    />
-                    <span className="ml-2">Yes</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-[#6FBC44]"
-                      checked={!feedbackDetail.trainerOnTime}
-                      readOnly
-                    />
-                    <span className="ml-2">No</span>
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <p className="mb-2">Are you satisfied with the curriculum?</p>
-                <div className="space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-[#6FBC44]"
-                      checked={feedbackDetail.satisfiedCurriculum}
-                      readOnly
-                    />
-                    <span className="ml-2">Yes</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-[#6FBC44]"
-                      checked={!feedbackDetail.satisfiedCurriculum}
-                      readOnly
-                    />
-                    <span className="ml-2">No</span>
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <p className="mb-2">Does the trainer teach the full lesson?</p>
-                <div className="space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-[#6FBC44]"
-                      checked={feedbackDetail.trainerTeachFull}
-                      readOnly
-                    />
-                    <span className="ml-2">Yes</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio text-[#6FBC44]"
-                      checked={!feedbackDetail.trainerTeachFull}
-                      readOnly
-                    />
-                    <span className="ml-2">No</span>
-                  </label>
-                </div>
-              </div>
-            </div> */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-6">
-              {listQuestion.map((item) => (
-                <div key={item.id}>
-                  <p className="mb-2">{item.question}</p>
-                  <div className="space-x-4">
+            {/* <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-6"> */}
+            {listQuestion.map((item) => (
+              <div key={item.id} className="mb-6">
+                <p className="mb-2">{item.question}</p>
+                {/* <div className="space-x-4">
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
@@ -356,10 +298,11 @@ const FeedbackDetailForm = ({ id }: Props) => {
                       />
                       <span className="ml-2">No</span>
                     </label>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  </div> */}
+                {renderInputByType(item)}
+              </div>
+            ))}
+            {/* </div> */}
 
             {/* Description Section */}
             <div>

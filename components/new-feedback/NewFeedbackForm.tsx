@@ -27,23 +27,28 @@ type Props = {
 const listQuestion = [
   {
     id: 1,
-    question: "How would you rate the curriculum quality?",
+    question: "How would you rate this course?",
+    type: "rating",
   },
   {
     id: 2,
-    question: "Would you recommend the course to others?",
+    question: "Would you recommend this course to others?",
+    type: "yes-no",
   },
   {
     id: 3,
-    question: "Does the trainer come to class on time?",
+    question: "Please provide additional comments",
+    type: "text",
   },
   {
     id: 4,
-    question: "Are you satisfied with the curriculum?",
+    question: "How satisfied are you with the teacher?",
+    type: "rating",
   },
   {
     id: 5,
-    question: "Does the trainer teach the full lesson?",
+    question: "Was the course material clear?",
+    type: "yes-no",
   },
 ];
 
@@ -72,26 +77,26 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
   console.log("classId", classId);
   console.log("selectedSubject", selectedSubject);
   const [feedback, setFeedback] = useState<any>({
-    listAnswer: [
+    listAnswers: [
       {
         questionId: 1,
-        answer: "true",
+        answer: 1,
       },
       {
         questionId: 2,
-        answer: "true",
+        answer: true,
       },
       {
         questionId: 3,
-        answer: "true",
+        answer: "",
       },
       {
         questionId: 4,
-        answer: "true",
+        answer: 1,
       },
       {
         questionId: 5,
-        answer: "true",
+        answer: true,
       },
     ],
     description: "",
@@ -110,29 +115,29 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
           userId,
           classId,
           subjectId: selectedSubject,
-          // listAnswers: feedback.listAnswer,
-          listAnswers: [
-            {
-              questionId: 1,
-              answer: 1,
-            },
-            {
-              questionId: 2,
-              answer: 1,
-            },
-            {
-              questionId: 3,
-              answer: "test",
-            },
-            {
-              questionId: 4,
-              answer: 3,
-            },
-            {
-              questionId: 5,
-              answer: 1,
-            },
-          ],
+          listAnswers: feedback.listAnswers,
+          // listAnswers: [
+          //   {
+          //     questionId: 1,
+          //     answer: 1,
+          //   },
+          //   {
+          //     questionId: 2,
+          //     answer: true,
+          //   },
+          //   {
+          //     questionId: 3,
+          //     answer: "ssss",
+          //   },
+          //   {
+          //     questionId: 4,
+          //     answer: 1,
+          //   },
+          //   {
+          //     questionId: 5,
+          //     answer: false,
+          //   },
+          // ],
           description: feedback.description,
           feedbackDate: new Date().toISOString(),
           openTime: new Date().toISOString(),
@@ -140,6 +145,7 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
       });
       const data = await res.json();
       console.log("Feedback response:", data);
+      alert("Feedback submitted successfully!");
     } catch (error) {
       console.error(error);
     }
@@ -148,6 +154,83 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
   useEffect(() => {
     fetchListSubject();
   }, []);
+
+  const renderStar = (num: number, question: any) => {
+    return (
+      <svg
+        key={num}
+        xmlns="http://www.w3.org/2000/svg"
+        className={`h-6 w-6 cursor-pointer ${
+          num <= feedback.listAnswers[question.id - 1].answer
+            ? "text-[#FFC107]"
+            : "text-gray-300"
+        }`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        onClick={() => {
+          feedback.listAnswers[question.id - 1].answer = num;
+          setFeedback({ ...feedback });
+        }}
+      >
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    );
+  };
+
+  const renderInputByType = (question: any) => {
+    switch (question.type) {
+      case "rating":
+        return (
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((num) => renderStar(num, question))}
+          </div>
+        );
+      case "yes-no":
+        return (
+          <div className="space-x-4">
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                className="form-radio text-[#6FBC44] w-4 h-4"
+                checked={feedback.listAnswers[question.id - 1].answer !== false}
+                onChange={() => {
+                  feedback.listAnswers[question.id - 1].answer = true;
+                  setFeedback({ ...feedback });
+                }}
+              />
+              <span className="ml-2 text-sm">Yes</span>
+            </label>
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                className="form-radio text-[#6FBC44] w-4 h-4"
+                checked={feedback.listAnswers[question.id - 1].answer === false}
+                onChange={() => {
+                  feedback.listAnswers[question.id - 1].answer = false;
+                  setFeedback({ ...feedback });
+                }}
+              />
+              <span className="ml-2 text-sm">No</span>
+            </label>
+          </div>
+        );
+      case "text":
+        return (
+          <input
+            type="text"
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6FBC44] text-sm"
+            value={feedback.listAnswers[question.id - 1].answer}
+            onChange={(e) => {
+              feedback.listAnswers[question.id - 1].answer = e.target.value;
+              setFeedback({ ...feedback });
+            }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="flex-1 bg-[#EFF5EB] overflow-auto">
@@ -194,189 +277,13 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
                   </SelectContent>
                 </Select>
               </div>
-              {/* <div className="flex gap-2">
-                <span className="font-bold">Duration:</span>
-                <span>12/8/2024-12/12-2024</span>
-              </div> */}
             </div>
           </div>
 
-          {/* Rating Section */}
-          {/* <div className="mb-6">
-            <p className="mb-2">How would you rate the curriculum quality?</p>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((num) => renderStar(num))}
-            </div>
-          </div> */}
-
-          {/* Yes/No Questions */}
-          {/* <div className="mb-6">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <p className="mb-2">
-                    Would you recommend the course to others?
-                  </p>
-                  <div className="space-x-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-[#6FBC44] w-4 h-4"
-                        checked={feedback.recommendCourse}
-                        onChange={() =>
-                          setFeedback({ ...feedback, recommendCourse: true })
-                        }
-                      />
-                      <span className="ml-2 text-sm">Yes</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-[#6FBC44] w-4 h-4"
-                        checked={!feedback.recommendCourse}
-                        onChange={() =>
-                          setFeedback({ ...feedback, recommendCourse: false })
-                        }
-                      />
-                      <span className="ml-2 text-sm">No</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="mb-2">Are you satisfied with the curriculum?</p>
-                  <div className="space-x-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-[#6FBC44] w-4 h-4"
-                        checked={feedback.satisfiedCurriculum}
-                        onChange={() =>
-                          setFeedback({
-                            ...feedback,
-                            satisfiedCurriculum: true,
-                          })
-                        }
-                      />
-                      <span className="ml-2 text-sm">Yes</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-[#6FBC44] w-4 h-4"
-                        checked={!feedback.satisfiedCurriculum}
-                        onChange={() =>
-                          setFeedback({
-                            ...feedback,
-                            satisfiedCurriculum: false,
-                          })
-                        }
-                      />
-                      <span className="ml-2 text-sm">No</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="mb-2">
-                    Does the trainer teach the full lesson?
-                  </p>
-                  <div className="space-x-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-[#6FBC44] w-4 h-4"
-                        checked={feedback.trainerTeachFull}
-                        onChange={() =>
-                          setFeedback({ ...feedback, trainerTeachFull: true })
-                        }
-                      />
-                      <span className="ml-2 text-sm">Yes</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-[#6FBC44] w-4 h-4"
-                        checked={!feedback.trainerTeachFull}
-                        onChange={() =>
-                          setFeedback({
-                            ...feedback,
-                            trainerTeachFull: false,
-                          })
-                        }
-                      />
-                      <span className="ml-2 text-sm">No</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="mb-2">
-                    Does the trainer come to class on time?
-                  </p>
-                  <div className="space-x-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-[#6FBC44] w-4 h-4"
-                        checked={feedback.trainerOnTime}
-                        onChange={() =>
-                          setFeedback({ ...feedback, trainerOnTime: true })
-                        }
-                      />
-                      <span className="ml-2 text-sm">Yes</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio text-[#6FBC44] w-4 h-4"
-                        checked={!feedback.trainerOnTime}
-                        onChange={() =>
-                          setFeedback({ ...feedback, trainerOnTime: false })
-                        }
-                      />
-                      <span className="ml-2 text-sm">No</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */}
           {listQuestion.map((question) => (
             <div key={question.id} className="mb-6">
               <p className="mb-2">{question.question}</p>
-              <div className="space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio text-[#6FBC44] w-4 h-4"
-                    checked={
-                      feedback.listAnswer[question.id - 1].answer !== "false"
-                    }
-                    onChange={() => {
-                      feedback.listAnswer[question.id - 1].answer = "true";
-                      setFeedback({ ...feedback });
-                    }}
-                  />
-                  <span className="ml-2 text-sm">Yes</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    className="form-radio text-[#6FBC44] w-4 h-4"
-                    checked={
-                      feedback.listAnswer[question.id - 1].answer === "false"
-                    }
-                    onChange={() => {
-                      feedback.listAnswer[question.id - 1].answer = "false";
-                      setFeedback({ ...feedback });
-                    }}
-                  />
-                  <span className="ml-2 text-sm">No</span>
-                </label>
-              </div>
+              {renderInputByType(question)}
             </div>
           ))}
 
