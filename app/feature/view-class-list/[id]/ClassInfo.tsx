@@ -3,9 +3,10 @@ import { useState } from "react";
 type Props = {
   id: any;
   data: any;
+  listTrainee: any[];
 };
 
-const ClassInfo = ({ id, data }: Props) => {
+const ClassInfo = ({ id, data, listTrainee }: Props) => {
   return (
     <div className="grid grid-cols-2 gap-x-8 gap-y-6">
       {/* tôi muốn hiển thị label và input nằm ngang như trong file figma  */}
@@ -88,11 +89,11 @@ const ClassInfo = ({ id, data }: Props) => {
         <input
           type="text"
           className="w-full h-10 px-3"
-          // value={data?.admin}
+          value={listTrainee?.length}
           readOnly
         />
       </div>
-      <div className="flex items-center">
+      {/* <div className="flex items-center">
         <label className="block text-lg font-medium w-48">Generation:</label>
         <input
           type="text"
@@ -100,7 +101,7 @@ const ClassInfo = ({ id, data }: Props) => {
           // value={data?.admin}
           readOnly
         />
-      </div>
+      </div> */}
       <div className="flex items-center">
         <label className="block text-lg font-medium w-48">Description:</label>
         <input

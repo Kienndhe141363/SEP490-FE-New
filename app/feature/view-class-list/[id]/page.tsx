@@ -68,7 +68,7 @@ const page: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Class Info":
-        return <ClassInfo id={id} data={data} />;
+        return <ClassInfo id={id} data={data} listTrainee={listTrainee} />;
       case "Trainee":
         return (
           <Trainee

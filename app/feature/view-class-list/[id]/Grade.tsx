@@ -10,6 +10,7 @@ import {
 import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
 import axios from "axios";
+import useRole from "@/hooks/useRole";
 
 type Props = {
   id: any;
@@ -220,6 +221,8 @@ const Grade = ({ id }: Props) => {
     );
   };
 
+  const role = useRole();
+
   return (
     <div>
       <h1 className="text-4xl font-bold mb-8">Grade Average</h1>
@@ -318,6 +321,7 @@ const Grade = ({ id }: Props) => {
                           ]);
                         }
                       }}
+                      readOnly={role === "ROLE_TRAINEE"}
                     />
                   </td>
                 ))}
@@ -329,20 +333,25 @@ const Grade = ({ id }: Props) => {
           </tbody>
         </table>
       </div>
-      <div className="flex justify-center mt-6 space-x-4">
-        <button className="bg-gray-200 px-6 py-2 rounded" onClick={handleReset}>
-          Reset
-        </button>
-        <button
-          className={`${
-            listGradesUpdate.length === 0 ? "bg-[#bddaaa]" : "bg-[#6FBC44]"
-          }  text-white px-6 py-2 rounded`}
-          onClick={handleAddGrade}
-          disabled={listGradesUpdate.length === 0}
-        >
-          Save
-        </button>
-      </div>
+      {role !== "ROLE_TRAINEE" && (
+        <div className="flex justify-center mt-6 space-x-4">
+          <button
+            className="bg-gray-200 px-6 py-2 rounded"
+            onClick={handleReset}
+          >
+            Reset
+          </button>
+          <button
+            className={`${
+              listGradesUpdate.length === 0 ? "bg-[#bddaaa]" : "bg-[#6FBC44]"
+            }  text-white px-6 py-2 rounded`}
+            onClick={handleAddGrade}
+            disabled={listGradesUpdate.length === 0}
+          >
+            Save
+          </button>
+        </div>
+      )}
     </div>
   );
 };

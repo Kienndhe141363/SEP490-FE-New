@@ -28,8 +28,8 @@ const page = (props: Props) => {
   const { userId } = useParams();
   console.log(userId);
   const [activeTab, setActiveTab] = useState("Class Info");
-  // const [id, setId] = useState<any>(null);
-  const id = 19;
+  const [id, setId] = useState<any>(null);
+  // const id = 19;
 
   const fetchClassDetail = async () => {
     try {
@@ -40,20 +40,18 @@ const page = (props: Props) => {
           headers: {
             Authorization: `Bearer ${getJwtToken()}`,
           },
+          maxContentLength: 1000000, // Giới hạn kích thước tối đa của nội dung phản hồi
         }
       );
-      // const res = await response.json();
-      // console.log(response?.data);
+
       if (response) {
-        // id = response?.data?.data?.classId;
-        console.log(response?.data?.data?.code);
-        console.log(response?.data);
+        setId(response?.data?.data[0]?.classId);
       }
     } catch (error) {
       console.error(error);
     }
   };
-
+  console.log("id", id);
   const [data, setData] = useState<any>(null);
 
   const [listTrainee, setListTrainee] = useState([]);
@@ -90,14 +88,20 @@ const page = (props: Props) => {
 
   useEffect(() => {
     fetchClassDetail();
-    fetchData();
-    fetchListTrainee();
   }, []);
 
+  useEffect(() => {
+    if (!id) return;
+    fetchData();
+    fetchListTrainee();
+  }, [id]);
+
   const renderTabContent = () => {
+    if (!id) return null;
+
     switch (activeTab) {
       case "Class Info":
-        return <ClassInfo id={id} data={data} />;
+        return <ClassInfo id={id} data={data} listTrainee={listTrainee} />;
       case "Trainee":
         return (
           <Trainee
