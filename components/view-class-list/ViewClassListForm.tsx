@@ -306,7 +306,7 @@ const ViewClassListForm: React.FC = () => {
                     role === "ROLE_ADMIN" ||
                     role === "SYSTEM_ADMIN" ||
                     role === "ROLE_MANAGER" ||
-                    (role === "CLASS_ADMIN" && classItem.status)
+                    (role === "ROLE_CLASS_ADMIN" && classItem.status)
                   ) {
                     router.push(
                       `/feature/view-class-list/${classItem.classId}`
@@ -384,7 +384,7 @@ const ViewClassListForm: React.FC = () => {
                     </button> */}
                   </div>
                 )}
-                {role === "CLASS_ADMIN" && (
+                {role === "ROLE_CLASS_ADMIN" && (
                   <div className="flex justify-center space-x-2">
                     <p>{classItem.status ? "Approved" : "In preview"}</p>
                   </div>
