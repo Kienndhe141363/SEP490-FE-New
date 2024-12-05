@@ -93,15 +93,15 @@ const ClassInfo = ({ id, data, listTrainee }: Props) => {
           readOnly
         />
       </div>
-      {/* <div className="flex items-center">
+      <div className="flex items-center">
         <label className="block text-lg font-medium w-48">Generation:</label>
         <input
           type="text"
           className="w-full h-10 px-3"
-          // value={data?.admin}
+          value={data?.generationName}
           readOnly
         />
-      </div> */}
+      </div>
       <div className="flex items-center">
         <label className="block text-lg font-medium w-48">Description:</label>
         <input
