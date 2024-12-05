@@ -1,4 +1,3 @@
-import { formatDateRange } from "@/components/add-new-class-4/AddNewClass4Form";
 import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
 import { formatDate } from "date-fns";
@@ -23,34 +22,10 @@ const Session = ({ id, startDate }: Props) => {
     );
   };
 
-  const fetchTimeTableSubject = async (sessionsList: any, slot: any) => {
-    try {
-      if (!startDate) return [];
-      const response = await fetch(
-        `${BASE_API_URL}/class-management/get-time-table-session`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            startDate: new Date(startDate),
-            slot: slot || 1,
-            sessions: sessionsList.map((s: any) => ({
-              ...s,
-              startDate: new Date(startDate),
-            })),
-          }),
-        }
-      );
-      const res = await response.json();
-      console.log("res", res);
-      if (res.code === "Success") {
-        return res.data;
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  const getStartDate = (index: number) => {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + index);
+    return date;
   };
 
   const fetchListSubject = async () => {
@@ -62,28 +37,12 @@ const Session = ({ id, startDate }: Props) => {
         }
       );
       const res = await response.json();
-      // setSubjects(
-      //   res?.data?.map((subject: any, index: number) => ({
-      //     ...subject,
-      //     isExpanded: index === 0,
-      //   }))
-      // );
-      console.log("res", res);
-      const newSubjects = await Promise.all(
-        res?.data?.map(async (subject: any) => {
-          const response = await fetchTimeTableSubject(
-            subject.sessionsList,
-            subject.slot
-          );
-          return {
-            ...subject,
-            isExpanded: true,
-            sessionsList: response,
-          };
-        })
+      setSubjects(
+        res?.data?.map((subject: any, index: number) => ({
+          ...subject,
+          isExpanded: index === 0,
+        }))
       );
-
-      setSubjects(newSubjects);
     } catch (error) {
       console.error(error);
     }
@@ -112,7 +71,7 @@ const Session = ({ id, startDate }: Props) => {
             {subject?.isExpanded ? <ChevronUp /> : <ChevronDown />}
           </div>
 
-          {/* {subject?.isExpanded && (
+          {subject?.isExpanded && (
             <>
               {subject?.sessionsList.map((lesson: any, index: number) => (
                 <div key={index} className="grid grid-cols-5 border-t">
@@ -120,33 +79,12 @@ const Session = ({ id, startDate }: Props) => {
                   <div className="p-4 border-r">{lesson.lesson}</div>
                   <div className="p-4 border-r">{lesson.sessionOrder}</div>
                   <div className="p-4 border-r">
-                    {formatDate(new Date(subject.createdDate), "dd/MM/yyyy")}
+                    {/* {formatDate(new Date(subject.createdDate), "dd/MM/yyyy")} */}
+                    {formatDate(getStartDate(index), "dd/MM/yyyy")}
                   </div>
                   <div className="p-4">{lesson.description}</div>
                 </div>
               ))}
-            </>
-          )} */}
-          {subject?.isExpanded && (
-            <>
-              {subject?.sessionsList?.map((lesson: any, index: number) => (
-                <div key={index} className="grid grid-cols-5 border-t">
-                  <div className="p-4 border-r">{index + 1}</div>
-                  <div className="p-4 border-r">{lesson.lesson}</div>
-                  <div className="p-4 border-r">{lesson.sessionOrder}</div>
-                  <div className="p-4 border-r">
-                    {lesson.date
-                      ? formatDateRange(lesson.date, lesson.endDate)
-                      : "--"}
-                  </div>
-                  <div className="p-4">{lesson.description}</div>
-                </div>
-              ))}
-              {/* <LessonForm
-                setSubjects={setSubjects}
-                subjects={subjects}
-                subjectId={subject.subjectId}
-              /> */}
             </>
           )}
         </div>
