@@ -108,6 +108,7 @@ const page = (props: Props) => {
             id={id}
             listTrainee={listTrainee}
             fetchListTrainee={fetchListTrainee}
+            status={data?.status}
           />
         );
       // case "Attendance":

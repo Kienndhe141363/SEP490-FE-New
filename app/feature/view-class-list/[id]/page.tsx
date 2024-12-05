@@ -75,6 +75,7 @@ const page: React.FC = () => {
             id={id}
             listTrainee={listTrainee}
             fetchListTrainee={fetchListTrainee}
+            status={data?.status}
           />
         );
       case "Attendance":
