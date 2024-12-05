@@ -362,7 +362,9 @@ const ViewClassListForm: React.FC = () => {
 
               {/* Action */}
               <td className="px-6 py-3 border text-center">
-                {(role === "ROLE_ADMIN" || role === "SYSTEM_ADMIN") && (
+                {(role === "ROLE_ADMIN" ||
+                  role === "SYSTEM_ADMIN" ||
+                  role === "ROLE_MANAGER") && (
                   <div className="flex justify-center space-x-2">
                     {/* Nút Tích */}
                     <button
@@ -381,7 +383,7 @@ const ViewClassListForm: React.FC = () => {
                     </button> */}
                   </div>
                 )}
-                {role === "ROLE_MANAGER" && (
+                {role === "CLASS_ADMIN" && (
                   <div className="flex justify-center space-x-2">
                     <p>{classItem.status ? "Approved" : "In preview"}</p>
                   </div>
