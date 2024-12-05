@@ -82,7 +82,7 @@ const page: React.FC = () => {
       case "Grade":
         return <Grade id={id} />;
       case "Session":
-        return <Session id={id} />;
+        return <Session id={id} startDate={data?.startDate} />;
       case "Weekly Timetable":
         return <WeeklyTimetableForm id={id} listTrainee={listTrainee} />;
       default:

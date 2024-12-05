@@ -117,7 +117,7 @@ const page = (props: Props) => {
       case "Grade":
         return <Grade id={id} />;
       case "Session":
-        return <Session id={id} />;
+        return <Session id={id} startDate={data?.startDate} />;
       case "Schedule":
       case "Weekly Timetable":
         return <WeeklyTimetableForm id={id} listTrainee={listTrainee} />;
