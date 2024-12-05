@@ -139,6 +139,7 @@ const ViewClassListForm: React.FC = () => {
       );
       if (res.status === 200) {
         toast.success("Accept class successfully");
+        fetchClasses(currentPage);
       }
     } catch (error) {
       toast.error("Accept class failed");
@@ -229,7 +230,7 @@ const ViewClassListForm: React.FC = () => {
   };
 
   const role = useRole();
-
+  console.log(role);
   return (
     <div className="flex-1 ml-[228px] bg-[#EFF5EB] p-24 min-h-screen">
       <div className="flex justify-between items-center p-8 border-b">
@@ -361,9 +362,7 @@ const ViewClassListForm: React.FC = () => {
 
               {/* Action */}
               <td className="px-6 py-3 border text-center">
-                {(role === "ROLE_ADMIN" ||
-                  role === "SYSTEM_ADMIN" ||
-                  role === "ROLE_MANAGER") && (
+                {(role === "ROLE_ADMIN" || role === "SYSTEM_ADMIN") && (
                   <div className="flex justify-center space-x-2">
                     {/* Nút Tích */}
                     <button
@@ -380,6 +379,11 @@ const ViewClassListForm: React.FC = () => {
                     >
                       ✖
                     </button>
+                  </div>
+                )}
+                {role === "ROLE_MANAGER" && (
+                  <div className="flex justify-center space-x-2">
+                    <p>{classItem.status ? "Approved" : "In preview"}</p>
                   </div>
                 )}
               </td>
