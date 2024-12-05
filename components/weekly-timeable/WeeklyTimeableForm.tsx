@@ -28,12 +28,10 @@ const WeeklyTimetableForm = ({ id, listTrainee }: WeeklyTimetableFormProps) => {
 
   const getSlot = (date: string) => {
     const time = new Date(date).getHours();
-    if (time >= 7 && time < 9) {
+    if (time >= 7 && time < 11) {
       return "slot1";
-    } else if (time >= 9 && time < 13) {
-      return "slot2";
     } else {
-      return "slot3";
+      return "slot2";
     }
   };
 
@@ -87,9 +85,8 @@ const WeeklyTimetableForm = ({ id, listTrainee }: WeeklyTimetableFormProps) => {
   const [selectedWeek, setSelectedWeek] = useState("2/12-8/12");
 
   const timeSlots = [
-    { id: 1, time: "7h30-9h00" },
-    { id: 2, time: "9h30-11h00" },
-    { id: 3, time: "13h30-17h00" },
+    { id: 1, time: "9h30-11h00" },
+    { id: 2, time: "13h00-16h00" },
   ];
 
   const days = ["Week", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];

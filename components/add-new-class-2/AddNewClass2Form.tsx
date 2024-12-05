@@ -22,7 +22,7 @@ const AddNewClass2Form = ({
   const [listGeneration, setListGeneration] = useState([]);
   const [listTrainer, setListTrainer] = useState([]);
   const [listSubject, setListSubject] = useState([]);
-  const listSlot = [1, 2, 3, 4];
+  const listSlot = [1, 2];
 
   const [formData, setFormData] = useState({
     classCode: "",

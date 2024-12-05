@@ -373,12 +373,12 @@ const ViewClassListForm: React.FC = () => {
                     </button>
 
                     {/* Nút Xóa */}
-                    <button
+                    {/* <button
                       onClick={() => toast.error("Delete action triggered")}
                       className="bg-red-500 text-white px-2 rounded-full hover:bg-red-700"
                     >
                       ✖
-                    </button>
+                    </button> */}
                   </div>
                 )}
                 {role === "ROLE_MANAGER" && (
