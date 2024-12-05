@@ -70,17 +70,22 @@ const AddNewClassForm = ({ setActiveStep, setData }: AddNewClassFormProps) => {
 
       try {
         // Fetch admins
-        const adminsResponse = await axios.get(
-          `${BASE_API_URL}/user/management/list`,
+        const adminsResponse = await axios.post(
+          `${BASE_API_URL}/user/search`,
+          {
+            roleId: 3,
+          },
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
+        console.log(adminsResponse);
         //@ts-ignore
-        const fetchedAdmin = adminsResponse?.data?.users.filter((user) =>
-          user.roles.includes("ROLE_CLASS_ADMIN")
+        console.log(adminsResponse?.data?.data?.dataSource);
+        const fetchedAdmin = adminsResponse?.data?.data?.dataSource.filter(
+          (user: any) => user.role.includes("ROLE_CLASS_ADMIN")
         );
         setAdmins(fetchedAdmin);
         //setAdmins(adminsResponse.data.data.dataSource || []);
