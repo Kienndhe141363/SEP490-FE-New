@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 
 const useRole = () => {
-  const [role, setRole] = useState(() => {
-    // Lấy role từ localStorage khi khởi tạo
-    return localStorage.getItem("role") || null;
-  });
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const initialRole = localStorage.getItem("role");
+      setRole(initialRole);
+    }
+
     const handleStorageChange = () => {
-      // Cập nhật role khi localStorage thay đổi
       const updatedRole = localStorage.getItem("role");
       setRole(updatedRole);
     };
 
-    // Lắng nghe sự kiện storage để xử lý thay đổi role
     window.addEventListener("storage", handleStorageChange);
 
     return () => {
