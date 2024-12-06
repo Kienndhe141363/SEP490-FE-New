@@ -158,6 +158,13 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
     );
   };
 
+  const getStartDate = (index: number) => {
+    if (!data.startDate) return new Date();
+    const date = new Date(data.startDate);
+    date.setDate(date.getDate() + index);
+    return date;
+  };
+
   const handleUpdateClass = async () => {
     try {
       const response = await fetch(
@@ -377,9 +384,10 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
                             {lesson.sessionOrder}
                           </div>
                           <div className="p-4 border-r">
-                            {lesson.date
+                            {/* {lesson.date
                               ? formatDateRange(lesson.date, lesson.endDate)
-                              : "--"}
+                              : "--"} */}
+                            {formatDate(getStartDate(index), "dd/MM/yyyy")}
                           </div>
                           <div className="p-4">{lesson.description}</div>
                         </div>
