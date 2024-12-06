@@ -368,12 +368,14 @@ const ViewClassListForm: React.FC = () => {
                   role === "ROLE_MANAGER") && (
                   <div className="flex justify-center space-x-2">
                     {/* Nút Tích */}
-                    <button
-                      onClick={() => handleAcceptClass(classItem.classId)}
-                      className="bg-green-500 text-white px-2  rounded-full hover:bg-green-700"
-                    >
-                      ✔
-                    </button>
+                    {!classItem.status && classItem?.classCode ? (
+                      <button
+                        onClick={() => handleAcceptClass(classItem.classId)}
+                        className="bg-green-500 text-white px-2  rounded-full hover:bg-green-700"
+                      >
+                        ✔
+                      </button>
+                    ) : null}
 
                     {/* Nút Xóa */}
                     {/* <button
