@@ -392,19 +392,44 @@ const AddNewClass2Form = ({
                         <td className="border border-gray-300 p-2">
                           <select
                             className="w-full border p-1"
+                            // onChange={(e) => {
+                            //   const subjectList = formData?.subjectList?.map(
+                            //     (item: any) => {
+                            //       if (item.subjectId === subject.subjectId) {
+                            //         return {
+                            //           ...item,
+                            //           slot: e.target.value,
+                            //         };
+                            //       }
+                            //       return item;
+                            //     }
+                            //   );
+                            //   setFormData({ ...formData, subjectList });
+                            // }}
                             onChange={(e) => {
-                              const subjectList = formData?.subjectList?.map(
-                                (item: any) => {
+                              const selectedSlot = e.target.value; // Slot người dùng vừa chọn
+                              const updatedSubjectList =
+                                formData.subjectList.map((item: any) => {
                                   if (item.subjectId === subject.subjectId) {
+                                    // Cập nhật slot cho môn hiện tại
                                     return {
                                       ...item,
-                                      slot: e.target.value,
+                                      slot: selectedSlot,
+                                    };
+                                  } else {
+                                    // Đổi slot cho môn còn lại
+                                    return {
+                                      ...item,
+                                      slot: selectedSlot === "1" ? "2" : "1",
                                     };
                                   }
-                                  return item;
-                                }
-                              );
-                              setFormData({ ...formData, subjectList });
+                                });
+
+                              // Cập nhật lại state
+                              setFormData({
+                                ...formData,
+                                subjectList: updatedSubjectList,
+                              });
                             }}
                             value={getSlot(subject?.subjectId)}
                           >
