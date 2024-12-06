@@ -167,11 +167,30 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
     );
   };
 
+  // const getStartDate = (index: number) => {
+  //   if (!data.startDate) return new Date();
+  //   const date = new Date(data.startDate);
+  //   date.setDate(date.getDate() + index);
+  //   return date;
+  // };
+
   const getStartDate = (index: number) => {
     if (!data.startDate) return new Date();
     const date = new Date(data.startDate);
-    date.setDate(date.getDate() + index);
-    return date;
+    let daysToAdd = index;
+
+    while (true) {
+      date.setDate(date.getDate() + daysToAdd);
+
+      // Kiểm tra nếu ngày rơi vào thứ 2 đến thứ 6 (weekday)
+      const dayOfWeek = date.getDay();
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        return date;
+      }
+
+      // Nếu ngày là thứ Bảy (6) hoặc Chủ Nhật (0), tính lại
+      daysToAdd = 1; // Nhảy qua ngày tiếp theo
+    }
   };
 
   const handleUpdateClass = async () => {
