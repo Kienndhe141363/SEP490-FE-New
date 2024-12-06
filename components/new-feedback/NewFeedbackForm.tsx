@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface FeedbackData {
   curriculumRating: number;
@@ -145,9 +146,13 @@ const NewFeedbackForm = ({ userId, classId }: Props) => {
       });
       const data = await res.json();
       console.log("Feedback response:", data);
-      alert("Feedback submitted successfully!");
+      // alert("Feedback submitted successfully!");
+      toast("Feedback submitted successfully", {
+        icon: "✅",
+      });
     } catch (error) {
-      console.error(error);
+      // console.error(error);
+      toast.error("Error submitting feedback");
     }
   };
 

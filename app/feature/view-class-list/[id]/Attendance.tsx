@@ -12,6 +12,7 @@ import {
 import { getJwtToken } from "@/lib/utils";
 import { BASE_API_URL } from "@/config/constant";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const dateTime = {
   January: [
@@ -177,11 +178,17 @@ const TakeAttendanceForm = ({ id, listTrainee }: Props) => {
           },
         }
       );
-      alert("Add attendance successfully");
+      // alert("Add attendance successfully");
+      toast("Add attendance successfully", {
+        icon: "✅",
+      });
       // TODO: Refetch data
       fetchListAttendance();
     } catch (error) {
-      console.error(error);
+      // console.error(error);
+      toast.error("Add attendance failed", {
+        icon: "❌",
+      });
     }
   };
 

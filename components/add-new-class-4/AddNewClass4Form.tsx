@@ -13,6 +13,7 @@ import {
 import { formatDate } from "date-fns";
 import { BASE_API_URL } from "@/config/constant";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface Lesson {
   id: number;
@@ -207,10 +208,16 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
       console.log("res", res);
       if (res.code === "Success") {
         router.push("/feature/view-class-list");
-        alert("Add class successfully");
+        // alert("Add class successfully");
+        toast("Add class successfully", {
+          icon: "✅",
+        });
       }
     } catch (error) {
-      console.error(error);
+      // console.error(error);
+      toast.error("Add class failed", {
+        icon: "❌",
+      });
     }
   };
 

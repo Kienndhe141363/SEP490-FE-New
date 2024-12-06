@@ -11,6 +11,7 @@ import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
 import axios from "axios";
 import useRole from "@/hooks/useRole";
+import toast from "react-hot-toast";
 
 type Props = {
   id: any;
@@ -157,11 +158,17 @@ const Grade = ({ id }: Props) => {
           },
         }
       );
-      alert("Add grade successfully");
+      // alert("Add grade successfully");
+      toast("Add grade successfully", {
+        icon: "✅",
+      });
       // TODO: Refetch data
       fetchData();
     } catch (error) {
-      console.error(error);
+      // console.error(error);
+      toast("Add grade failed", {
+        icon: "❌",
+      });
     }
   };
 
