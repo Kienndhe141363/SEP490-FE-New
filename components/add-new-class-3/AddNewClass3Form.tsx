@@ -11,6 +11,7 @@ import {
 import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface AddNewClass3FormProps {
   setActiveStep: (step: number) => void;
@@ -27,6 +28,7 @@ const AddNewClass3Form = ({
   console.log(data);
   const [listTrainee, setListTrainee] = useState([]);
   const [listUserIdsRemoved, setListUserIdsRemoved] = useState([]);
+  const router = useRouter();
 
   const fetchListTrainee = async () => {
     try {
@@ -49,7 +51,8 @@ const AddNewClass3Form = ({
   }, []);
 
   const handleCancel = () => {
-    setActiveStep(1);
+    // setActiveStep(1);
+    router.push("/feature/view-class-list");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -246,7 +249,7 @@ const AddNewClass3Form = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {listTrainee.map((trainee, index) => (
+                  {listTrainee?.map((trainee, index) => (
                     <tr
                       key={trainee.userId}
                       className={index % 2 === 1 ? "bg-[#EFF5EB]" : ""}
@@ -285,9 +288,11 @@ const AddNewClass3Form = ({
                 Cancel
               </button>
               <button
-                className="px-8 py-2 bg-[#6FBC44] text-white rounded"
+                className={`px-8 py-2 ${
+                  listTrainee?.length === 0 ? "bg-[#b5e09d]" : "bg-[#6FBC44]"
+                } text-white rounded`}
                 onClick={handleSubmit}
-                // disabled={listTrainee.length === 0}
+                disabled={listTrainee?.length === 0}
               >
                 Save
               </button>

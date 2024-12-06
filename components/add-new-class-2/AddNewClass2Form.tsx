@@ -4,6 +4,7 @@ import { Home, Users, BookOpen, Settings, LogOut } from "lucide-react";
 import { BASE_API_URL } from "@/config/constant";
 import { getJwtToken } from "@/lib/utils";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface AddNewClass2FormProps {
   setActiveStep: (step: number) => void;
@@ -34,8 +35,11 @@ const AddNewClass2Form = ({
     subjectList: [],
   });
 
+  // const router = useRouter();
+
   const handleCancel = () => {
-    setActiveStep(0);
+    setActiveStep(1);
+    // window.location.href = "/feature/view-class-list";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
