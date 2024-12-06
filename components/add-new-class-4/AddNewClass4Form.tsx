@@ -138,7 +138,8 @@ const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
 
 const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
   const handleCancel = () => {
-    setActiveStep(2);
+    // setActiveStep(2);
+    router.push("/feature/view-class-list");
   };
 
   const activeTab = "Session";
