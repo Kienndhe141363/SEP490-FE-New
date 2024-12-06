@@ -52,13 +52,21 @@ export const formatDateRange = (startDate: string, endDate: string) => {
 const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
   const [formData, setFormData] = useState({
     name: "",
-    order: 0,
+    // order: 0,
     date: "",
     description: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const getLastOrder = () => {
+    const subject = subjects.find(
+      (subject: any) => subject.subjectId === subjectId
+    );
+    if (!subject) return 0;
+    return subject.sessionsList.length;
   };
 
   const handleAddLesson = async () => {
@@ -73,7 +81,7 @@ const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
           body: JSON.stringify({
             subjectId,
             lesson: formData.name,
-            sessionOrder: formData.order,
+            sessionOrder: getLastOrder() + 1,
             // date: "2024-11-24T16:24:17.544Z",
             description: formData.description,
           }),
@@ -94,7 +102,7 @@ const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
         setSubjects(newSubjects);
         setFormData({
           name: "",
-          order: 0,
+          // order: 0,
           date: "",
           description: "",
         });
@@ -116,14 +124,14 @@ const LessonForm = ({ setSubjects, subjects, subjectId }: LessonFormProps) => {
           value={formData.name}
           onChange={handleChange}
         />
-        <input
+        {/* <input
           type="number"
           name="order"
           placeholder="Order"
           className="bg-gray-100 p-2 rounded w-24"
           value={formData.order}
           onChange={handleChange}
-        />
+        /> */}
         <input
           type="text"
           name="description"
