@@ -24,7 +24,7 @@ const listTabs = [
 
 type Props = {};
 
-const page = (props: Props) => {
+const Page = (props: Props) => {
   const { userId } = useParams();
   console.log(userId);
   const [activeTab, setActiveTab] = useState("Class Info");
@@ -174,4 +174,4 @@ const page = (props: Props) => {
   );
 };
 
-export default page;
+export default Page;

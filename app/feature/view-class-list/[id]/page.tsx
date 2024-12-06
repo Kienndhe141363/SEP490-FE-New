@@ -13,7 +13,7 @@ import Grade from "./Grade";
 import TakeAttendanceForm from "./Attendance";
 import WeeklyTimetableForm from "@/components/weekly-timeable/WeeklyTimeableForm";
 
-const page: React.FC = () => {
+const Page = () => {
   const [activeTab, setActiveTab] = useState("Class Info");
   const listTabs = [
     "Class Info",
@@ -204,4 +204,4 @@ const page: React.FC = () => {
   );
 };
 
-export default page;
+export default Page;

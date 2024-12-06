@@ -6,10 +6,10 @@ import React from "react";
 
 type Props = {};
 
-const page = (props: Props) => {
+const Page = (props: Props) => {
   const { id } = useParams();
 
   return <FeedbackDetailForm id={id} />;
 };
 
-export default page;
+export default Page;
