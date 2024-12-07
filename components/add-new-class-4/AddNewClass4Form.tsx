@@ -207,7 +207,7 @@ const AddNewClass4Form = ({ setActiveStep, data }: AddNewClass4FormProps) => {
             classCode: data.classCode,
             locationId: data.locationId,
             generationId: data.generationId,
-            curriculumId: data?.curriculum?.curriculumId,
+            curriculumId: data?.curriculum?.curriculumId || 18,
             startDate: new Date(data.startDate),
             endDate: new Date(data.endDate),
             description: data.note,
