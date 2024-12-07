@@ -105,6 +105,7 @@ const AddNewClass3Form = ({
   const handleImportTrainee = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    console.log(e.target.files);
     const file = e.target.files?.[0];
     if (!file) return;
 

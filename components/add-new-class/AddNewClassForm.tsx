@@ -93,7 +93,9 @@ const AddNewClassForm = ({ setActiveStep, setData }: AddNewClassFormProps) => {
         // Fetch curriculums
         const curriculumsResponse = await axios.post(
           `${BASE_API_URL}/curriculums/search`,
-          {},
+          {
+            size: 100,
+          },
           {
             headers: { Authorization: `Bearer ${token}` },
           }

@@ -124,6 +124,7 @@ const AddSubjectForm: React.FC = () => {
   };
 
   const handleSubmit = async (values: any) => {
+    console.log(values);
     const token = getJwtToken();
     if (!token) {
       router.push("/authen/login");
@@ -141,7 +142,7 @@ const AddSubjectForm: React.FC = () => {
           schemes: values.schemes,
           lessonList: values.lessonList.map(
             (lesson: SubjectLesson, index: number) => ({
-              lessonName: lesson.lesson,
+              lesson: lesson.lesson,
               sessionOrder: index + 1,
               description: lesson.description,
             })

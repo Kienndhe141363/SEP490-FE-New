@@ -180,9 +180,9 @@ const Grade = ({ id }: Props) => {
     const currentSubject = listSubject.find(
       (subject: any) => subject.subjectId === selectedSubject
     );
-
-    const subjectGrade = userGrade?.gradeComponentList.find(
-      (grade: any) => grade.subjectName === currentSubject.subjectName
+    console.log("currentSubject", currentSubject);
+    const subjectGrade = userGrade?.gradeComponentList?.find(
+      (grade: any) => grade.subjectName === currentSubject?.subjectName
     );
 
     const total = subjectGrade?.gradeComponents.reduce(
