@@ -282,7 +282,7 @@ const Grade = ({ id }: Props) => {
             {listTrainee?.map((student: any, index) => (
               <tr key={student.userId} className="border-b hover:bg-gray-50">
                 <td className="py-4 px-6 border-r border-gray-200">
-                  {index + 1}
+                  {student.userId}
                 </td>
                 <td className="py-4 px-6 border-r border-gray-200">
                   {student.account}

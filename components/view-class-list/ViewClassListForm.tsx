@@ -291,7 +291,9 @@ const ViewClassListForm: React.FC = () => {
               key={classItem.classId}
               className={!classItem.status ? "bg-green-300" : ""}
             >
-              <td className="border px-6 py-3 text-center">{index + 1}</td>
+              <td className="border px-6 py-3 text-center">
+                {classItem.classId}
+              </td>
 
               {/* Class Code */}
               <td className="px-6 py-3 border text-left text-blue-500 hover:underline cursor-pointer">

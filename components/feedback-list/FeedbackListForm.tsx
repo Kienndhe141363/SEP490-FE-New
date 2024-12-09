@@ -429,7 +429,7 @@ const FeedbackListForm: React.FC = () => {
         <tbody className="bg-white">
           {feedbacks.map((feedback, index) => (
             <tr key={feedback.feedbackId} className="border-b">
-              <td className="px-6 py-3 text-center">{index + 1}</td>
+              <td className="px-6 py-3 text-center">{feedback.feedbackId}</td>
               <td className="px-6 py-3">{feedback.traineeName}</td>
               <td className="px-6 py-3">{feedback.subjectCode}</td>
               <td className="px-6 py-3 text-center">{feedback.avgRating} ⭐</td>

@@ -256,7 +256,7 @@ const AddNewClass3Form = ({
                       className={index % 2 === 1 ? "bg-[#EFF5EB]" : ""}
                     >
                       <td className="py-4 px-6 border-r border-gray-300">
-                        {index + 1}
+                        {trainee.userId}
                       </td>
                       <td className="py-4 px-6 border-r border-gray-300">
                         {trainee.account}
