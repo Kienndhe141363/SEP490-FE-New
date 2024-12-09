@@ -329,6 +329,7 @@ const Grade = ({ id }: Props) => {
                         }
                       }}
                       readOnly={role !== "ROLE_TRAINER"}
+                      disabled={role !== "ROLE_TRAINER"}
                     />
                   </td>
                 ))}
