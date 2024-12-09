@@ -18,8 +18,8 @@ const Page = () => {
   const listTabs = [
     "Class Info",
     "Trainee",
-    "Attendance",
-    "Grade",
+    // "Attendance",
+    // "Grade",
     "Session",
     "Weekly Timetable",
   ];
@@ -90,6 +90,11 @@ const Page = () => {
         return null;
     }
   };
+
+  // tôi muốn khi data có status là true thì mới hiển thị tab Attendance và Grade ở trước tab Session
+  if (data?.status) {
+    listTabs.splice(2, 0, "Attendance", "Grade");
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">

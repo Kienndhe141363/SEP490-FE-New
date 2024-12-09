@@ -306,7 +306,7 @@ const ViewClassListForm: React.FC = () => {
                     role === "ROLE_ADMIN" ||
                     role === "SYSTEM_ADMIN" ||
                     role === "ROLE_MANAGER" ||
-                    (role === "ROLE_CLASS_ADMIN" && classItem?.classCode)
+                    classItem?.classCode
                   ) {
                     router.push(
                       `/feature/view-class-list/${classItem.classId}`

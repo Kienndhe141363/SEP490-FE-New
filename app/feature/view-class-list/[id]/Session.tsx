@@ -22,22 +22,40 @@ const Session = ({ id, startDate }: Props) => {
     );
   };
 
+  // const getStartDate = (index: number) => {
+  //   const date = new Date(startDate);
+  //   let daysToAdd = index;
+
+  //   while (true) {
+  //     date.setDate(date.getDate() + daysToAdd);
+
+  //     // Kiểm tra nếu ngày rơi vào thứ 2 đến thứ 6 (weekday)
+  //     const dayOfWeek = date.getDay();
+  //     if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+  //       return date;
+  //     }
+
+  //     // Nếu ngày là thứ Bảy (6) hoặc Chủ Nhật (0), tính lại
+  //     daysToAdd = 1; // Nhảy qua ngày tiếp theo
+  //   }
+  // };
+
   const getStartDate = (index: number) => {
     const date = new Date(startDate);
-    let daysToAdd = index;
 
-    while (true) {
-      date.setDate(date.getDate() + daysToAdd);
+    let daysAdded = 0; // Số ngày hợp lệ (weekday) đã thêm
 
-      // Kiểm tra nếu ngày rơi vào thứ 2 đến thứ 6 (weekday)
+    while (daysAdded < index) {
+      date.setDate(date.getDate() + 1); // Tăng ngày lên 1
+
+      // Kiểm tra nếu ngày hiện tại là ngày trong tuần (Monday to Friday)
       const dayOfWeek = date.getDay();
       if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-        return date;
+        daysAdded++; // Chỉ tăng đếm nếu là ngày hợp lệ
       }
-
-      // Nếu ngày là thứ Bảy (6) hoặc Chủ Nhật (0), tính lại
-      daysToAdd = 1; // Nhảy qua ngày tiếp theo
     }
+
+    return date;
   };
 
   const fetchListSubject = async () => {

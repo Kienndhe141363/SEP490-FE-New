@@ -229,7 +229,7 @@ const Grade = ({ id }: Props) => {
   };
 
   const role = useRole();
-
+  console.log("role", role);
   return (
     <div>
       <h1 className="text-4xl font-bold mb-8">Grade Average</h1>
@@ -328,7 +328,7 @@ const Grade = ({ id }: Props) => {
                           ]);
                         }
                       }}
-                      readOnly={role === "ROLE_TRAINEE"}
+                      readOnly={role !== "ROLE_TRAINER"}
                     />
                   </td>
                 ))}
@@ -340,7 +340,7 @@ const Grade = ({ id }: Props) => {
           </tbody>
         </table>
       </div>
-      {role !== "ROLE_TRAINEE" && (
+      {role === "ROLE_TRAINER" && (
         <div className="flex justify-center mt-6 space-x-4">
           <button
             className="bg-gray-200 px-6 py-2 rounded"
